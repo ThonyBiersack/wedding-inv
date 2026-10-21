@@ -1,0 +1,163 @@
+---
+interface Props {
+	photos: string[];
+}
+
+const { photos } = Astro.props;
+---
+
+<section
+	class="w-full bg-[#fff7f9]/45 p-4 sm:p-6"
+	aria-labelledby="gallery-heading"
+>
+	<h2
+		id="gallery-heading"
+		class="font-sans text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6e1d3b] sm:text-xs"
+	>
+		Galeri
+	</h2>
+	<p class="mt-1 font-sans text-[10px] text-[#6e1d3b]">
+		Momen kebersamaan Anggi &amp; Asep
+	</p>
+	<div
+		class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
+	>
+		{
+			photos.map((photo, index) => (
+				<button
+					type="button"
+					data-gallery-index={index}
+					aria-label={`Perbesar foto Anggi dan Asep ${index + 1}`}
+					class="group cursor-zoom-in rounded-sm border border-[#c4a252]/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6e1d3b]"
+				>
+					<img
+						src={`/photo/${photo}`}
+						alt={`Foto Anggi dan Asep ${index + 1}`}
+						loading="lazy"
+						class="aspect-square w-full rounded-sm object-cover transition duration-200 group-hover:brightness-90"
+					/>
+				</button>
+			))
+		}
+	</div>
+	<dialog
+		id="gallery-preview"
+		aria-label="Pratinjau foto galeri"
+		class="m-auto max-h-[92dvh] w-[min(96vw,72rem)] max-w-none overflow-visible bg-transparent p-0 text-[#fff7f9] backdrop:bg-[#1a0812]/90"
+	>
+		<div class="relative flex max-h-[92dvh] flex-col items-center">
+			<button
+				type="button"
+				data-gallery-close
+				aria-label="Tutup pratinjau foto"
+				class="absolute -right-2 -top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-[#e4d3a0] bg-[#4f142b] text-2xl leading-none text-[#fff7f9] shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d3a0] sm:-right-4 sm:-top-4"
+			>
+				&times;
+			</button>
+			<img
+				data-gallery-preview-image
+				src=""
+				alt=""
+				class="max-h-[82dvh] max-w-full rounded-sm object-contain shadow-2xl"
+			/>
+			<div
+				class="mt-3 flex w-full items-center justify-between gap-4 font-sans text-xs"
+			>
+				<button
+					type="button"
+					data-gallery-previous
+					aria-label="Foto sebelumnya"
+					class="rounded-full border border-[#e4d3a0]/70 px-4 py-2 transition hover:bg-[#fff7f9]/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d3a0]"
+				>
+					Sebelumnya
+				</button>
+				<p data-gallery-caption class="text-center text-[#fff0d0]"></p>
+				<button
+					type="button"
+					data-gallery-next
+					aria-label="Foto berikutnya"
+					class="rounded-full border border-[#e4d3a0]/70 px-4 py-2 transition hover:bg-[#fff7f9]/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d3a0]"
+				>
+					Berikutnya
+				</button>
+			</div>
+		</div>
+	</dialog>
+</section>
+
+<script>
+	const gallery = document.querySelector(
+		'[aria-labelledby="gallery-heading"]',
+	);
+	const preview = document.querySelector("#gallery-preview");
+	const previewImage = preview?.querySelector("[data-gallery-preview-image]");
+	const caption = preview?.querySelector("[data-gallery-caption]");
+	const galleryButtons = gallery?.querySelectorAll<HTMLButtonElement>(
+		"[data-gallery-index]",
+	);
+	const closeButton = preview?.querySelector<HTMLButtonElement>(
+		"[data-gallery-close]",
+	);
+	const previousButton = preview?.querySelector<HTMLButtonElement>(
+		"[data-gallery-previous]",
+	);
+	const nextButton = preview?.querySelector<HTMLButtonElement>(
+		"[data-gallery-next]",
+	);
+
+	if (
+		!(preview instanceof HTMLDialogElement) ||
+		!(previewImage instanceof HTMLImageElement) ||
+		!(caption instanceof HTMLElement) ||
+		!galleryButtons?.length ||
+		!(closeButton instanceof HTMLButtonElement) ||
+		!(previousButton instanceof HTMLButtonElement) ||
+		!(nextButton instanceof HTMLButtonElement)
+	) {
+		throw new Error("Gallery preview could not be initialized.");
+	}
+
+	let activeIndex = 0;
+
+	const showImage = (index: number) => {
+		activeIndex = (index + galleryButtons.length) % galleryButtons.length;
+		const thumbnail = galleryButtons[activeIndex].querySelector("img");
+
+		if (!(thumbnail instanceof HTMLImageElement)) {
+			throw new Error(
+				`Gallery image ${activeIndex + 1} could not be found.`,
+			);
+		}
+
+		previewImage.src = thumbnail.src;
+		previewImage.alt = thumbnail.alt;
+		caption.textContent = `${activeIndex + 1} / ${galleryButtons.length}`;
+	};
+
+	galleryButtons.forEach((button, index) => {
+		button.addEventListener("click", () => {
+			showImage(index);
+			preview.showModal();
+			closeButton.focus();
+		});
+	});
+
+	closeButton.addEventListener("click", () => preview.close());
+	previousButton.addEventListener("click", () => showImage(activeIndex - 1));
+	nextButton.addEventListener("click", () => showImage(activeIndex + 1));
+	preview.addEventListener("click", (event) => {
+		if (event.target === preview) {
+			preview.close();
+		}
+	});
+	preview.addEventListener("keydown", (event) => {
+		if (event.key === "Escape") {
+			event.preventDefault();
+			preview.close();
+		} else if (event.key === "ArrowLeft") {
+			showImage(activeIndex - 1);
+		} else if (event.key === "ArrowRight") {
+			showImage(activeIndex + 1);
+		}
+	});
+</script>

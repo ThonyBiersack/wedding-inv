@@ -1,16 +1,326 @@
 ---
+import Layout from "../layouts/layout.astro";
+import BatikBackground from "../components/BatikBackground.astro";
+import InvitationCover from "../components/InvitationCover.astro";
+import InvitationVerse from "../components/InvitationVerse.astro";
+import InvitationProfiles from "../components/InvitationProfiles.astro";
+import InvitationLoveStory from "../components/InvitationLoveStory.astro";
+import InvitationEventDetails from "../components/InvitationEventDetails.astro";
+import InvitationGallery from "../components/InvitationGallery.astro";
+import InvitationGift from "../components/InvitationGift.astro";
+import InvitationRsvp from "../components/InvitationRsvp.astro";
+import InvitationWishes from "../components/InvitationWishes.astro";
+import InvitationClosing from "../components/InvitationClosing.astro";
+
+const photos = [
+	"IMG_20261014_194408.jpg",
+	"IMG_20261014_194330.jpg",
+	"IMG_20261014_194238.jpg",
+	"IMG_20261014_194145.jpg",
+	"DSC088233.jpg",
+	"DSC08812.JPG",
+	"DSC08810.JPG",
+	"DSC08804.JPG",
+	"DSC08799.JPG",
+	"DSC08790.JPG",
+	"DSC08789.JPG",
+	"DSC087833.jpg",
+	"DSC087666.jpg",
+	"DSC08740.JPG",
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout>
+	<main
+		class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-5 py-12"
+	>
+		<BatikBackground />
+
+		<header class="relative z-10 mb-9 text-center sm:mb-12">
+			<p
+				class="mb-3 font-sans text-[10px] font-medium uppercase tracking-[0.38em] text-[#e4d3a0] sm:text-xs"
+			>
+				Sebuah undangan istimewa
+			</p>
+			<h1
+				class="text-4xl font-normal tracking-tight text-[#fff0f4] sm:text-5xl"
+			>
+				Anggi <span class="font-light italic text-[#c4a252]">&amp;</span
+				> Asep
+			</h1>
+			<p
+				class="mt-3 font-sans text-[10px] uppercase tracking-[0.32em] text-[#e4d3a0]"
+			>
+				15 · 11 · 2026
+			</p>
+		</header>
+
+		<section
+			id="invitation-section"
+			class="relative z-10 flex w-full max-w-md flex-col items-center"
+			aria-label="Undangan pernikahan"
+		>
+			<div
+				id="envelope"
+				class="envelope-stage relative aspect-[1.3/1] w-full max-w-[25rem] [perspective:1100px]"
+			>
+				<div
+					class="absolute inset-0 rounded-sm bg-[#c4a252] shadow-[0_28px_55px_-26px_rgba(0,0,0,0.55)]"
+				>
+				</div>
+
+				<article
+					id="invitation"
+					aria-hidden="true"
+					tabindex="-1"
+					inert
+					class="invitation-letter absolute bottom-5 left-[8%] z-[2] flex h-[96%] w-[84%] flex-col items-center justify-start overflow-y-auto overscroll-contain bg-[#f4d7e0] px-0 py-5 text-center shadow-[0_8px_20px_rgba(79,20,43,0.3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c4a252]"
+				>
+					<div
+						aria-hidden="true"
+						class="pointer-events-none absolute left-1/2 top-3 h-px w-12 -translate-x-1/2 bg-[#c4a252]/70"
+					>
+					</div>
+					<div
+						class="relative z-[1] flex w-full flex-col items-center gap-0"
+					>
+						<audio
+							id="invitation-music"
+							src="/audio/Make%20You%20Feel%20My%20Love.mp3"
+							preload="none"
+							loop
+							hidden></audio>
+						<InvitationCover />
+
+						<InvitationVerse />
+
+						<InvitationProfiles />
+
+						<InvitationLoveStory />
+
+						<InvitationEventDetails />
+
+						<InvitationGallery photos={photos} />
+
+						<InvitationGift />
+
+						<InvitationRsvp />
+
+						<InvitationWishes />
+
+						<InvitationClosing />
+					</div>
+				</article>
+
+				<div
+					class="envelope-front absolute inset-0 z-[3] overflow-hidden rounded-sm"
+				>
+					<div
+						class="absolute inset-x-0 bottom-0 h-[72%] bg-[#c4a252] [clip-path:polygon(0_0,50%_68%,100%_0,100%_100%,0_100%)]"
+					>
+					</div>
+					<div
+						class="absolute inset-x-8 bottom-[10%] z-[1] text-center text-[#4f142b]"
+					>
+						<p
+							class="font-sans text-[8px] uppercase tracking-[0.24em] text-[#4f142b]"
+						>
+							Kepada Yth.
+						</p>
+						<p
+							id="recipient-name"
+							class="mt-1 break-words text-base leading-tight"
+						>
+							Tamu Undangan
+						</p>
+					</div>
+				</div>
+
+				<div
+					class="envelope-flap absolute inset-x-0 top-0 z-[4] h-[58%] bg-[#e4d3a0] [backface-visibility:hidden] [clip-path:polygon(0_0,100%_0,50%_100%)] drop-shadow-[0_5px_3px_rgba(0,0,0,0.2)]"
+					aria-hidden="true"
+				>
+					<svg
+						aria-hidden="true"
+						class="pointer-events-none absolute inset-0 h-full w-full"
+						viewBox="0 0 1000 446"
+						preserveAspectRatio="none"
+					>
+						<path
+							d="M6 6L500 440L994 6"
+							fill="none"
+							stroke="#6e1d3b"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="10"></path>
+					</svg>
+				</div>
+				<button
+					id="open-invitation"
+					type="button"
+					aria-label="Buka surat undangan"
+					aria-expanded="false"
+					aria-controls="invitation"
+					class="envelope-seal absolute left-1/2 top-[58%] z-[5] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-[#e4d3a0] bg-[#6e1d3b] text-base text-[#e4d3a0] shadow-[0_3px_8px_rgba(79,20,43,0.45)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e4d3a0]"
+				>
+					✳
+				</button>
+			</div>
+
+			<p
+				id="envelope-hint"
+				class="mt-11 font-sans text-[9px] uppercase tracking-[0.18em] text-[#f4d7e0] sm:mt-14"
+			>
+				Klik segel untuk membuka
+			</p>
+		</section>
+
+		<footer
+			class="relative z-10 mt-12 font-sans text-[9px] tracking-[0.12em] text-[#e4d3a0] sm:mt-16"
+		>
+			MERAYAKAN CINTA · 2026
+		</footer>
+	</main>
+
+	<script>
+		const envelope = document.querySelector("#envelope");
+		const invitation = document.querySelector("#invitation");
+		const button = document.querySelector("#open-invitation");
+		const envelopeHint = document.querySelector("#envelope-hint");
+		const recipientName = document.querySelector("#recipient-name");
+		const coverRecipientName = document.querySelector(
+			"#cover-recipient-name",
+		);
+		const invitationSection = document.querySelector("#invitation-section");
+		const invitationMusic = document.querySelector("#invitation-music");
+		const rsvpForm = document.querySelector("#rsvp-form");
+		const guestWishes = document.querySelector("#guest-wishes");
+		const wishList = document.querySelector("#wish-list");
+
+		if (
+			!(envelope instanceof HTMLElement) ||
+			!(invitation instanceof HTMLElement) ||
+			!(button instanceof HTMLButtonElement) ||
+			!(envelopeHint instanceof HTMLElement) ||
+			!(recipientName instanceof HTMLElement) ||
+			!(coverRecipientName instanceof HTMLElement) ||
+			!(invitationSection instanceof HTMLElement) ||
+			!(invitationMusic instanceof HTMLAudioElement) ||
+			!(rsvpForm instanceof HTMLFormElement) ||
+			!(guestWishes instanceof HTMLElement) ||
+			!(wishList instanceof HTMLElement)
+		) {
+			throw new Error("Invitation elements could not be initialized.");
+		}
+
+		const recipient = new URLSearchParams(window.location.search)
+			.get("to")
+			?.trim();
+		if (recipient) {
+			const displayName = recipient.replace(/\s+/g, " ").slice(0, 60);
+			recipientName.textContent = displayName;
+			coverRecipientName.textContent = displayName;
+		}
+
+		rsvpForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const formData = new FormData(rsvpForm);
+			const guestName = formData.get("guestName");
+			const attendance = formData.get("attendance");
+			const message = formData.get("message");
+
+			if (
+				typeof guestName !== "string" ||
+				typeof attendance !== "string" ||
+				typeof message !== "string"
+			) {
+				throw new Error("RSVP form values are invalid.");
+			}
+
+			const card = document.createElement("article");
+			card.className =
+				"rounded-sm border border-[#c4a252]/60 bg-[#fff7f9]/70 p-3 text-left";
+
+			const name = document.createElement("h3");
+			name.className = "text-sm font-medium text-[#4f142b]";
+			name.textContent = guestName.trim();
+
+			const response = document.createElement("p");
+			response.className =
+				"mt-1 font-sans text-[9px] uppercase tracking-[0.12em] text-[#6e1d3b]";
+			response.textContent =
+				attendance === "Hadir" ? "Hadir" : "Tidak dapat hadir";
+
+			const wish = document.createElement("p");
+			wish.className =
+				"mt-2 whitespace-pre-wrap break-words font-sans text-[11px] leading-relaxed text-[#4f142b]";
+			wish.textContent = message.trim();
+
+			card.append(name, response, wish);
+			wishList.prepend(card);
+			guestWishes.classList.remove("hidden");
+			rsvpForm.reset();
+			guestWishes.scrollIntoView({
+				behavior: "smooth",
+				block: "nearest",
+			});
+		});
+
+		button.addEventListener("click", () => {
+			const envelopeBounds = envelope.getBoundingClientRect();
+			const sealBounds = button.getBoundingClientRect();
+			const startHeight = Math.max(16, envelopeBounds.height * 0.08);
+			const startBounds = {
+				left: envelopeBounds.left + envelopeBounds.width * 0.08,
+				top: sealBounds.top + sealBounds.height / 2 - startHeight / 2,
+				width: envelopeBounds.width * 0.84,
+				height: startHeight,
+			};
+
+			envelope.classList.add("is-open");
+			invitationSection.classList.add("is-open");
+			const targetBounds = invitation.getBoundingClientRect();
+			button.setAttribute("aria-expanded", "true");
+			button.setAttribute("aria-label", "Surat terbuka");
+			button.disabled = true;
+			invitation.setAttribute("aria-hidden", "false");
+			invitation.setAttribute("tabindex", "0");
+			invitation.inert = false;
+			invitation.setAttribute(
+				"aria-label",
+				"Surat undangan lengkap. Gulir untuk melihat semua bagian.",
+			);
+			envelopeHint.textContent =
+				"Gulir isi surat untuk melihat semua informasi";
+			invitation.focus();
+			invitation.scrollTop = 0;
+			if (
+				!window.matchMedia("(prefers-reduced-motion: reduce)").matches
+			) {
+				const scaleX = startBounds.width / targetBounds.width;
+				const scaleY = startBounds.height / targetBounds.height;
+				invitation.animate(
+					[
+						{
+							transformOrigin: "center center",
+							transform: `translate(${startBounds.left + startBounds.width / 2 - targetBounds.left - targetBounds.width / 2}px, ${startBounds.top + startBounds.height / 2 - targetBounds.top - targetBounds.height / 2}px) scale(${scaleX}, ${scaleY})`,
+						},
+						{
+							transformOrigin: "center center",
+							transform: "translate(0, 0) scale(1, 1)",
+						},
+					],
+					{
+						duration: 850,
+						easing: "cubic-bezier(0.22, 0.75, 0.25, 1)",
+					},
+				);
+			}
+			void invitationMusic.play().catch((error: unknown) => {
+				envelopeHint.textContent =
+					"Surat terbuka · Musik gagal diputar di perangkat ini";
+				console.error("Unable to play invitation audio.", error);
+			});
+		});
+	</script>
+</Layout>
