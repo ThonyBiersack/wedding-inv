@@ -17,6 +17,10 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+.font-script {
+	font-family: "Great Vibes", cursive;
+}
+
 html {
 	min-width: 320px;
 	min-height: 100%;

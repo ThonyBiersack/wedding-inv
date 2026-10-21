@@ -13,20 +13,20 @@ import InvitationWishes from "../components/InvitationWishes.astro";
 import InvitationClosing from "../components/InvitationClosing.astro";
 
 const photos = [
-	"IMG_20261014_194408.jpg",
-	"IMG_20261014_194330.jpg",
-	"IMG_20261014_194238.jpg",
-	"IMG_20261014_194145.jpg",
-	"DSC088233.jpg",
-	"DSC08812.JPG",
-	"DSC08810.JPG",
-	"DSC08804.JPG",
-	"DSC08799.JPG",
-	"DSC08790.JPG",
-	"DSC08789.JPG",
-	"DSC087833.jpg",
-	"DSC087666.jpg",
-	"DSC08740.JPG",
+	"IMG_20261014_194408.webp",
+	"IMG_20261014_194330.webp",
+	"IMG_20261014_194238.webp",
+	"IMG_20261014_194145.webp",
+	"DSC088233.webp",
+	"DSC08812.webp",
+	"DSC08810.webp",
+	"DSC08804.webp",
+	"DSC08799.webp",
+	"DSC08790.webp",
+	"DSC08789.webp",
+	"DSC087833.webp",
+	"DSC087666.webp",
+	"DSC08740.webp",
 ];
 ---
 
@@ -88,7 +88,6 @@ const photos = [
 							id="invitation-music"
 							src="/audio/Make%20You%20Feel%20My%20Love.mp3"
 							preload="none"
-							loop
 							hidden></audio>
 						<InvitationCover />
 
@@ -316,11 +315,34 @@ const photos = [
 					},
 				);
 			}
-			void invitationMusic.play().catch((error: unknown) => {
-				envelopeHint.textContent =
-					"Surat terbuka · Musik gagal diputar di perangkat ini";
-				console.error("Unable to play invitation audio.", error);
+			const AUDIO_START_SECOND = 16;
+			invitationMusic.currentTime = AUDIO_START_SECOND;
+			invitationMusic.volume = 0;
+
+			// Custom loop to always replay from second 16 onwards (skipping the long intro)
+			invitationMusic.addEventListener("ended", () => {
+				invitationMusic.currentTime = AUDIO_START_SECOND;
+				void invitationMusic.play();
 			});
+
+			void invitationMusic
+				.play()
+				.then(() => {
+					// Soft fade-in over 500ms
+					const fadeInterval = setInterval(() => {
+						if (invitationMusic.volume < 0.95) {
+							invitationMusic.volume = Math.min(1, invitationMusic.volume + 0.1);
+						} else {
+							invitationMusic.volume = 1;
+							clearInterval(fadeInterval);
+						}
+					}, 50);
+				})
+				.catch((error: unknown) => {
+					envelopeHint.textContent =
+						"Surat terbuka · Musik gagal diputar di perangkat ini";
+					console.error("Unable to play invitation audio.", error);
+				});
 		});
 	</script>
 </Layout>
