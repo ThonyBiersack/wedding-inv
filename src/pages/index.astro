@@ -175,6 +175,25 @@ const photos = [
 			</p>
 		</section>
 
+		<!-- Floating Music Controller Widget -->
+		<button
+			id="music-toggle-btn"
+			type="button"
+			aria-label="Jeda atau putar musik latar"
+			class="fixed bottom-5 right-5 z-[70] hidden h-11 w-11 items-center justify-center rounded-full border-2 border-[#c4a252] bg-[#3a0d1e]/90 text-[#e4d3a0] shadow-xl backdrop-blur-md transition hover:scale-105 active:scale-95 sm:bottom-6 sm:right-6"
+		>
+			<svg id="music-disc-icon" class="h-5 w-5 animate-spin-slow text-[#c4a252]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+				<circle cx="12" cy="12" r="10"></circle>
+				<circle cx="12" cy="12" r="3"></circle>
+				<path d="M12 2a10 10 0 0 1 10 10"></path>
+			</svg>
+			<svg id="music-paused-icon" class="hidden h-5 w-5 text-[#f4d7e0]/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<line x1="1" y1="1" x2="23" y2="23"></line>
+				<path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4m0 0l4 2.5M15 4v1.5"></path>
+				<circle cx="12" cy="12" r="10"></circle>
+			</svg>
+		</button>
+
 		<footer
 			class="relative z-10 mt-12 font-sans text-[9px] tracking-[0.12em] text-[#e4d3a0] sm:mt-16"
 		>
@@ -239,21 +258,21 @@ const photos = [
 
 			const card = document.createElement("article");
 			card.className =
-				"rounded-sm border border-[#c4a252]/60 bg-[#fff7f9]/70 p-3 text-left";
+				"rounded-xl border border-[#c4a252]/60 bg-gradient-to-b from-[#fff7f9] to-[#f4d7e0] p-3.5 text-left shadow-2xs";
 
 			const name = document.createElement("h3");
-			name.className = "text-sm font-medium text-[#4f142b]";
+			name.className = "font-serif text-sm font-medium text-[#4f142b]";
 			name.textContent = guestName.trim();
 
-			const response = document.createElement("p");
+			const response = document.createElement("span");
 			response.className =
-				"mt-1 font-sans text-[9px] uppercase tracking-[0.12em] text-[#6e1d3b]";
+				"mt-1 inline-block rounded-full border border-[#c4a252]/60 bg-[#fff7f9] px-2 py-0.5 font-sans text-[8px] font-semibold uppercase tracking-wider text-[#6e1d3b]";
 			response.textContent =
 				attendance === "Hadir" ? "Hadir" : "Tidak dapat hadir";
 
 			const wish = document.createElement("p");
 			wish.className =
-				"mt-2 whitespace-pre-wrap break-words font-sans text-[11px] leading-relaxed text-[#4f142b]";
+				"mt-2 whitespace-pre-wrap break-words font-sans text-xs leading-relaxed text-[#4f142b]/90";
 			wish.textContent = message.trim();
 
 			card.append(name, response, wish);
@@ -317,6 +336,29 @@ const photos = [
 				);
 			}
 			invitationMusic.volume = 0;
+
+			const musicToggleBtn = document.querySelector("#music-toggle-btn");
+			const musicDiscIcon = document.querySelector("#music-disc-icon");
+			const musicPausedIcon = document.querySelector("#music-paused-icon");
+
+			if (musicToggleBtn instanceof HTMLButtonElement) {
+				musicToggleBtn.classList.remove("hidden");
+				musicToggleBtn.addEventListener("click", () => {
+					if (invitationMusic.paused) {
+						void invitationMusic.play();
+						musicDiscIcon?.classList.remove("hidden");
+						musicDiscIcon?.classList.add("animate-spin-slow");
+						musicPausedIcon?.classList.add("hidden");
+						musicToggleBtn.setAttribute("aria-label", "Jeda musik");
+					} else {
+						invitationMusic.pause();
+						musicDiscIcon?.classList.add("hidden");
+						musicDiscIcon?.classList.remove("animate-spin-slow");
+						musicPausedIcon?.classList.remove("hidden");
+						musicToggleBtn.setAttribute("aria-label", "Putar musik");
+					}
+				});
+			}
 
 			void invitationMusic
 				.play()

@@ -1,63 +1,109 @@
-<section class="w-full bg-[#fff7f9]/45 p-4 text-left sm:p-6" aria-labelledby="rsvp-heading">
-	<h2 id="rsvp-heading" class="text-center font-sans text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6e1d3b] sm:text-xs">
-		Konfirmasi Kehadiran
-	</h2>
-	<p class="mt-2 text-center font-sans text-[10px] leading-relaxed text-[#6e1d3b]">
-		Beri kabar kehadiran dan tinggalkan ucapan untuk Anggi &amp; Asep.
-	</p>
-	<form id="rsvp-form" class="mt-4 space-y-3">
-		<div>
-			<label for="guest-name" class="mb-1 block font-sans text-[10px] font-medium text-[#4f142b]">
-				Nama
-			</label>
-			<input
-				id="guest-name"
-				name="guestName"
-				type="text"
-				maxlength="80"
-				autocomplete="name"
-				required
-				class="w-full rounded-sm border border-[#c4a252]/70 bg-[#fff7f9] px-3 py-2 font-sans text-xs text-[#4f142b] outline-none transition placeholder:text-[#8c4059]/60 focus:border-[#6e1d3b] focus:ring-2 focus:ring-[#c4a252]/40"
-				placeholder="Nama Anda"
-			/>
-		</div>
+---
 
-		<fieldset>
-			<legend class="mb-2 font-sans text-[10px] font-medium text-[#4f142b]">
-				konfirmasi kehadiran?
-			</legend>
-			<div class="grid grid-cols-2 gap-2">
-				<label class="flex cursor-pointer items-center gap-2 rounded-sm border border-[#c4a252]/70 bg-[#fff7f9] px-3 py-2 font-sans text-[10px] text-[#4f142b] has-[:checked]:border-[#6e1d3b] has-[:checked]:bg-[#f4d7e0]">
-					<input class="accent-[#6e1d3b]" type="radio" name="attendance" value="Hadir" required />
-					<span>hadir</span>
-				</label>
-				<label class="flex cursor-pointer items-center gap-2 rounded-sm border border-[#c4a252]/70 bg-[#fff7f9] px-3 py-2 font-sans text-[10px] text-[#4f142b] has-[:checked]:border-[#6e1d3b] has-[:checked]:bg-[#f4d7e0]">
-					<input class="accent-[#6e1d3b]" type="radio" name="attendance" value="Tidak hadir" />
-					<span>tidak hadir</span>
-				</label>
-			</div>
-		</fieldset>
+---
 
-		<div>
-			<label for="guest-message" class="mb-1 block font-sans text-[10px] font-medium text-[#4f142b]">
-				Kartu ucapan
-			</label>
-			<textarea
-				id="guest-message"
-				name="message"
-				rows="3"
-				maxlength="500"
-				required
-				class="w-full resize-y rounded-sm border border-[#c4a252]/70 bg-[#fff7f9] px-3 py-2 font-sans text-xs leading-relaxed text-[#4f142b] outline-none transition placeholder:text-[#8c4059]/60 focus:border-[#6e1d3b] focus:ring-2 focus:ring-[#c4a252]/40"
-				placeholder="Tuliskan doa dan ucapan..."
-			></textarea>
-		</div>
-
-		<button
-			type="submit"
-			class="w-full rounded-full border border-[#6e1d3b] bg-[#6e1d3b] px-4 py-2.5 font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-[#fff7f9] transition hover:bg-[#4f142b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6e1d3b]"
+<section
+	class="w-full bg-[#fff7f9]/45 p-4 text-left sm:p-6"
+	aria-labelledby="rsvp-heading"
+>
+	<div
+		class="relative mx-auto max-w-lg overflow-hidden rounded-2xl border border-[#c4a252]/60 bg-gradient-to-b from-[#fff7f9] to-[#f4d7e0] p-5 text-left shadow-md sm:p-7"
+	>
+		<h2
+			id="rsvp-heading"
+			class="text-center font-sans text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6e1d3b] sm:text-xs"
 		>
-			Kirim
-		</button>
-	</form>
+			Reservasi Kehadiran
+		</h2>
+		<p
+			class="mt-1 text-center font-serif text-xs italic text-[#c4a252] sm:text-sm"
+		>
+			RSVP &amp; Wishes
+		</p>
+		<p
+			class="mt-2 text-center font-sans text-[11px] leading-relaxed text-[#4f142b]/85 sm:text-xs"
+		>
+			Merupakan suatu kehormatan bagi kami atas kehadiran dan doa restu
+			Anda.
+		</p>
+
+		<form id="rsvp-form" class="mt-5 space-y-3.5">
+			<div>
+				<label
+					for="guest-name"
+					class="mb-1.5 block font-sans text-[10px] font-semibold uppercase tracking-wider text-[#6e1d3b]"
+				>
+					Nama Tamu
+				</label>
+				<input
+					id="guest-name"
+					name="guestName"
+					type="text"
+					maxlength="80"
+					autocomplete="name"
+					required
+					class="w-full rounded-xl border border-[#c4a252]/70 bg-[#fff7f9] px-3.5 py-2.5 font-sans text-xs text-[#4f142b] shadow-2xs outline-none transition placeholder:text-[#8c4059]/60 focus:border-[#6e1d3b] focus:bg-[#fdecf2] focus:ring-2 focus:ring-[#c4a252]/30"
+					placeholder="Masukkan nama lengkap Anda"
+				/>
+			</div>
+
+			<fieldset>
+				<legend
+					class="mb-1.5 font-sans text-[10px] font-semibold uppercase tracking-wider text-[#6e1d3b]"
+				>
+					Konfirmasi Kehadiran
+				</legend>
+				<div class="grid grid-cols-2 gap-2.5">
+					<label
+						class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#c4a252]/60 bg-[#fff7f9] px-3 py-2.5 font-sans text-xs font-medium text-[#4f142b] shadow-2xs transition hover:border-[#6e1d3b] has-[:checked]:border-[#6e1d3b] has-[:checked]:bg-[#6e1d3b] has-[:checked]:text-[#f4d7e0]"
+					>
+						<input
+							class="sr-only"
+							type="radio"
+							name="attendance"
+							value="Hadir"
+							required
+						/>
+						<span>Hadir</span>
+					</label>
+					<label
+						class="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#c4a252]/60 bg-[#fff7f9] px-3 py-2.5 font-sans text-xs font-medium text-[#4f142b] shadow-2xs transition hover:border-[#6e1d3b] has-[:checked]:border-[#6e1d3b] has-[:checked]:bg-[#6e1d3b] has-[:checked]:text-[#f4d7e0]"
+					>
+						<input
+							class="sr-only"
+							type="radio"
+							name="attendance"
+							value="Tidak hadir"
+						/>
+						<span>Tidak Hadir</span>
+					</label>
+				</div>
+			</fieldset>
+
+			<div>
+				<label
+					for="guest-message"
+					class="mb-1.5 block font-sans text-[10px] font-semibold uppercase tracking-wider text-[#6e1d3b]"
+				>
+					Doa &amp; Ucapan
+				</label>
+				<textarea
+					id="guest-message"
+					name="message"
+					rows="3"
+					maxlength="500"
+					required
+					class="w-full resize-y rounded-xl border border-[#c4a252]/70 bg-[#fff7f9] px-3.5 py-2.5 font-sans text-xs leading-relaxed text-[#4f142b] shadow-2xs outline-none transition placeholder:text-[#8c4059]/60 focus:border-[#6e1d3b] focus:bg-[#fdecf2] focus:ring-2 focus:ring-[#c4a252]/30"
+					placeholder="Tuliskan pesan atau doa terbaik untuk mempelai..."
+				></textarea>
+			</div>
+
+			<button
+				type="submit"
+				class="w-full rounded-full border border-[#c4a252] bg-gradient-to-r from-[#4f142b] via-[#6e1d3b] to-[#4f142b] px-4 py-2.5 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[#e4d3a0] shadow-md transition hover:brightness-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c4a252]"
+			>
+				Kirim
+			</button>
+		</form>
+	</div>
 </section>
