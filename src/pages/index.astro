@@ -87,7 +87,8 @@ const photos = [
 						<audio
 							id="invitation-music"
 							src="/audio/Make%20You%20Feel%20My%20Love.mp3"
-							preload="none"
+							preload="metadata"
+							loop
 							hidden></audio>
 						<InvitationCover />
 
@@ -315,15 +316,7 @@ const photos = [
 					},
 				);
 			}
-			const AUDIO_START_SECOND = 16;
-			invitationMusic.currentTime = AUDIO_START_SECOND;
 			invitationMusic.volume = 0;
-
-			// Custom loop to always replay from second 16 onwards (skipping the long intro)
-			invitationMusic.addEventListener("ended", () => {
-				invitationMusic.currentTime = AUDIO_START_SECOND;
-				void invitationMusic.play();
-			});
 
 			void invitationMusic
 				.play()
