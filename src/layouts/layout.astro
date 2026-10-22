@@ -1,5 +1,5 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 interface Props {
 	title?: string;
@@ -8,12 +8,14 @@ interface Props {
 }
 
 const {
-	title = 'The Wedding of Anggi & Asep',
-	description = 'Minggu, 15 November 2026. Dengan penuh sukacita, kami mengundang Anda untuk merayakan hari bahagia pernikahan kami.',
-	image = '/photo/cover-share.jpg',
+	title = "The Wedding of Anggi & Asep",
+	description = "Minggu, 15 November 2026. Dengan penuh sukacita, kami mengundang Anda untuk merayakan hari bahagia pernikahan kami.",
+	image = "/photo/cover-share.jpg",
 } = Astro.props;
 
-const siteUrl = Astro.site ? Astro.site.toString() : 'https://anggi-asep-wedding-djieproduction.com';
+const siteUrl = Astro.site
+	? Astro.site.toString()
+	: "https://anggi-asep-wedding.djieproduction.com";
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
 const ogImageUrl = new URL(image, siteUrl).toString();
 ---
@@ -51,7 +53,10 @@ const ogImageUrl = new URL(image, siteUrl).toString();
 		<link rel="canonical" href={canonicalUrl} />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
 	<body class="min-h-screen overflow-x-hidden">
 		<slot />
