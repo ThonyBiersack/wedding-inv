@@ -1,0 +1,663 @@
+---
+import Layout from "../layouts/layout.astro";
+import BatikBackground from "../components/BatikBackground.astro";
+
+export const prerender = false;
+---
+
+<Layout title="Generator Undangan & Tamu · Anggi & Asep">
+	<div class="relative min-h-screen bg-[#241018] text-[#fff7f9] selection:bg-[#c4a252] selection:text-[#241018]">
+		<BatikBackground />
+
+		<main class="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+			<!-- Header -->
+			<header class="mb-8 flex flex-col items-start justify-between gap-4 border-b border-[#c4a252]/20 pb-6 sm:flex-row sm:items-center">
+				<div>
+					<div class="flex items-center gap-2">
+						<span class="inline-block h-2 w-2 rounded-full bg-[#c4a252] animate-pulse"></span>
+						<p class="font-sans text-[10px] font-semibold uppercase tracking-[0.28em] text-[#e4d3a0]">
+							Cloudflare D1 Database Active
+						</p>
+					</div>
+					<h1 class="mt-1 font-serif text-3xl font-medium tracking-wide text-[#fff0f4] sm:text-4xl">
+						Kelola &amp; Generator Data Undangan
+					</h1>
+					<p class="mt-1 font-sans text-xs text-[#f4d7e0]/70">
+						Input nama tamu untuk menghasilkan tautan undangan personal serta tersimpan otomatis di database Cloudflare D1.
+					</p>
+				</div>
+				<div class="flex items-center gap-2.5">
+					<button
+						id="admin-lock-btn"
+						type="button"
+						class="inline-flex items-center gap-1.5 rounded-full border border-[#c4a252]/40 bg-[#3a0d1e]/80 px-3.5 py-2 font-sans text-xs font-medium text-[#f4d7e0] shadow-md backdrop-blur-sm transition hover:border-red-400/60 hover:bg-red-950/60 hover:text-red-300"
+						title="Kunci sesi admin"
+					>
+						<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+							<path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+						</svg>
+						<span>Kunci Sesi</span>
+					</button>
+					<a
+						href="/"
+						target="_blank"
+						class="inline-flex items-center gap-2 rounded-full border border-[#c4a252]/60 bg-[#3a0d1e]/80 px-4 py-2 font-sans text-xs font-medium text-[#e4d3a0] shadow-md backdrop-blur-sm transition hover:border-[#e4d3a0] hover:bg-[#4f142b]"
+					>
+						<span>Buka Undangan Utama</span>
+						<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+							<polyline points="15 3 21 3 21 9"></polyline>
+							<line x1="10" y1="14" x2="21" y2="3"></line>
+						</svg>
+					</a>
+				</div>
+			</header>
+
+			<!-- 2-Column Grid -->
+			<div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-start">
+				<!-- Left Column: Input Form & Database List (7 Cols) -->
+				<div class="space-y-6 lg:col-span-7">
+					<!-- Form Card -->
+					<section class="rounded-2xl border border-[#c4a252]/30 bg-[#3a0d1e]/85 p-6 shadow-xl backdrop-blur-md">
+						<h2 class="font-serif text-xl font-medium text-[#e4d3a0]">
+							Tambah Tamu Baru
+						</h2>
+						<p class="mt-1 font-sans text-xs text-[#f4d7e0]/70">
+							Ketik nama tamu. Teks pada live preview cover di samping akan otomatis berubah secara instan.
+						</p>
+
+						<form id="add-guest-form" class="mt-5 space-y-4">
+							<div>
+								<label for="guest-name-input" class="block font-sans text-xs font-semibold tracking-wider text-[#e4d3a0] uppercase">
+									Nama Tamu yang Diundang
+								</label>
+								<div class="mt-1.5 relative">
+									<input
+										id="guest-name-input"
+										name="guestName"
+										type="text"
+										required
+										maxlength="80"
+										placeholder="Contoh: Bpk. Budi Santoso &amp; Partner"
+										class="w-full rounded-xl border border-[#c4a252]/40 bg-[#241018]/90 px-4 py-3 font-serif text-base text-[#fff0f4] placeholder-[#f4d7e0]/30 shadow-inner focus:border-[#e4d3a0] focus:outline-none focus:ring-2 focus:ring-[#c4a252]/40"
+									/>
+									<span id="char-counter" class="absolute right-3 top-3.5 font-sans text-[10px] text-[#f4d7e0]/40">
+										0 / 80
+									</span>
+								</div>
+							</div>
+
+							<button
+								id="submit-btn"
+								type="submit"
+								class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#c4a252] bg-gradient-to-r from-[#7e2444] to-[#4f142b] px-5 py-3 font-sans text-sm font-semibold tracking-wider text-[#e4d3a0] uppercase shadow-lg transition hover:brightness-110 active:scale-[0.99] disabled:opacity-50"
+							>
+								<span id="submit-text">Simpan ke D1 &amp; Buat Tautan</span>
+								<svg id="submit-spinner" class="hidden h-4 w-4 animate-spin text-[#e4d3a0]" viewBox="0 0 24 24" fill="none">
+									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+								</svg>
+							</button>
+						</form>
+
+						<!-- Result Box (Hidden by default until created) -->
+						<div id="result-box" class="mt-6 hidden rounded-xl border border-[#c4a252]/50 bg-[#241018]/95 p-4 transition-all">
+							<div class="flex items-center justify-between">
+								<span class="font-sans text-[10px] font-bold uppercase tracking-wider text-[#73d18d]">
+									✓ Berhasil Disimpan ke D1
+								</span>
+								<span id="slug-badge" class="rounded-full bg-[#c4a252]/20 px-2.5 py-0.5 font-mono text-[10px] text-[#e4d3a0]">
+									slug
+								</span>
+							</div>
+							<div class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+								<input
+									id="generated-link-input"
+									type="text"
+									readonly
+									class="flex-1 rounded-lg border border-[#c4a252]/30 bg-black/40 px-3 py-2 font-mono text-xs text-[#e4d3a0] select-all focus:outline-none"
+								/>
+								<div class="flex gap-2">
+									<button
+										id="copy-link-btn"
+										type="button"
+										class="inline-flex items-center gap-1.5 rounded-lg border border-[#c4a252] bg-[#4f142b] px-3.5 py-2 font-sans text-xs font-semibold text-[#e4d3a0] transition hover:bg-[#6e1d3b] active:scale-95"
+									>
+										<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+											<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+										</svg>
+										<span id="copy-btn-text">Salin Link</span>
+									</button>
+									<a
+										id="test-link-btn"
+										href="#"
+										target="_blank"
+										class="inline-flex items-center gap-1.5 rounded-lg border border-[#c4a252]/40 bg-[#3a0d1e] px-3 py-2 font-sans text-xs font-medium text-[#f4d7e0] transition hover:border-[#e4d3a0]"
+									>
+										<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+											<polyline points="15 3 21 3 21 9"></polyline>
+											<line x1="10" y1="14" x2="21" y2="3"></line>
+										</svg>
+										<span>Buka</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</section>
+
+					<!-- D1 Guests Table / List -->
+					<section class="rounded-2xl border border-[#c4a252]/30 bg-[#3a0d1e]/85 p-6 shadow-xl backdrop-blur-md">
+						<div class="flex flex-col justify-between gap-2 border-b border-[#c4a252]/20 pb-4 sm:flex-row sm:items-center">
+							<div>
+								<h2 class="font-serif text-xl font-medium text-[#e4d3a0]">
+									Daftar Tamu Tersimpan
+								</h2>
+								<p class="font-sans text-xs text-[#f4d7e0]/60">
+									Data tersinkronisasi langsung dengan Cloudflare D1
+								</p>
+							</div>
+							<div class="flex items-center gap-3">
+								<span id="guest-count" class="rounded-full border border-[#c4a252]/40 bg-[#241018] px-3 py-1 font-mono text-xs text-[#e4d3a0]">
+									0 Tamu
+								</span>
+								<button
+									id="refresh-btn"
+									type="button"
+									title="Refresh Data"
+									class="rounded-lg border border-[#c4a252]/30 p-1.5 text-[#e4d3a0] transition hover:bg-[#4f142b]"
+								>
+									<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<polyline points="23 4 23 10 17 10"></polyline>
+										<polyline points="1 20 1 14 7 14"></polyline>
+										<path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+									</svg>
+								</button>
+							</div>
+						</div>
+
+						<div id="guest-list-container" class="mt-4 space-y-3">
+							<div id="loading-placeholder" class="py-8 text-center font-sans text-xs text-[#f4d7e0]/50">
+								Memuat daftar tamu dari Cloudflare D1...
+							</div>
+							<div id="empty-placeholder" class="hidden py-8 text-center font-sans text-xs text-[#f4d7e0]/50">
+								Belum ada tamu yang disimpan di database.
+							</div>
+							<div id="guests-wrapper" class="space-y-2.5"></div>
+						</div>
+					</section>
+				</div>
+
+				<!-- Right Column: Phone Mockup Frame with Live Cover Preview (5 Cols) -->
+				<div class="lg:sticky lg:top-8 lg:col-span-5">
+					<div class="mx-auto max-w-[340px]">
+						<!-- Phone Frame -->
+						<div class="relative overflow-hidden rounded-[2.5rem] border-[6px] border-[#3a0d1e] bg-black shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] ring-2 ring-[#c4a252]/50">
+							<!-- Notch / Dynamic Island -->
+							<div class="absolute left-1/2 top-2 z-30 h-4 w-28 -translate-x-1/2 rounded-full bg-black/80 backdrop-blur-md"></div>
+
+							<!-- Live Cover Preview Component Container -->
+							<div class="relative isolate flex h-[580px] w-full flex-col justify-between overflow-hidden text-[#fff7f9]">
+								<!-- Cover Background Image -->
+								<img
+									src="/photo/IMG_20261014_194145.webp"
+									alt="Cover Foto"
+									class="absolute inset-0 -z-20 h-full w-full object-cover"
+								/>
+								<div aria-hidden="true" class="absolute inset-0 -z-10 bg-gradient-to-b from-[#241018]/75 via-[#241018]/25 to-[#241018]/85"></div>
+
+								<!-- Live Indicator Overlay -->
+								<div class="relative z-20 flex justify-between px-4 pt-7 font-sans text-[8px] uppercase tracking-wider text-[#e4d3a0]">
+									<span class="rounded bg-black/50 px-2 py-0.5 backdrop-blur-sm">Live Preview</span>
+									<span class="rounded bg-black/50 px-2 py-0.5 backdrop-blur-sm">Cover Surat</span>
+								</div>
+
+								<!-- Header Undangan -->
+								<header class="px-5 text-center">
+									<p class="font-sans text-[8px] uppercase tracking-[0.34em] text-[#fff0d0]">
+										The Wedding Of
+									</p>
+									<h2 class="mt-2 font-serif text-3xl font-normal tracking-wide text-[#fff0f4]">
+										Anggi <span class="italic text-[#e4d3a0]">&amp;</span> Asep
+									</h2>
+									<div aria-hidden="true" class="mx-auto my-3 h-px w-10 bg-[#e4d3a0]"></div>
+									<p class="font-sans text-[9px] uppercase tracking-[0.22em] text-[#fff0d0]">
+										Minggu, 15 November 2026
+									</p>
+								</header>
+
+								<!-- Bagian Nama Tamu (Dynamic) -->
+								<div class="px-5 pb-8 text-center">
+									<p class="font-sans text-[8px] uppercase tracking-[0.28em] text-[#fff0d0]">
+										Kepada Yth.
+									</p>
+									<p
+										id="preview-recipient-name"
+										class="mt-1.5 break-words font-serif text-2xl font-medium leading-tight text-[#fff0f4] transition-all duration-150"
+									>
+										Tamu Undangan
+									</p>
+									<p class="mt-2 font-sans text-[7px] uppercase tracking-[0.2em] text-[#e4d3a0]/80">
+										di Tempat
+									</p>
+								</div>
+							</div>
+						</div>
+
+						<p class="mt-3 text-center font-sans text-[10px] tracking-wider text-[#f4d7e0]/60">
+							Tampilan cover otomatis menyesuaikan teks nama saat kamu mengetik.
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Admin Passcode Modal Overlay -->
+			<div
+
+				id="admin-auth-modal"
+				class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a0a10]/85 p-4 backdrop-blur-md"
+				role="dialog"
+				aria-modal="true"
+			>
+				<div class="relative w-full max-w-sm rounded-2xl border border-[#c4a252]/60 bg-[#2b101b] p-6 text-center shadow-2xl">
+					<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-[#c4a252]/50 bg-[#3a0d1e] text-[#c4a252] shadow-inner">
+						<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+							<path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+						</svg>
+					</div>
+					<h3 class="font-serif text-xl font-medium text-[#fff0f4]">Passcode Admin</h3>
+					<p class="mt-1 font-sans text-xs text-[#f4d7e0]/70">
+						Halaman ini dilindungi. Masukkan passcode admin untuk mengelola data tamu undangan.
+					</p>
+
+					<form id="admin-auth-form" class="mt-5 space-y-3">
+						<input
+							id="admin-passcode-input"
+							type="password"
+							placeholder="Masukkan Passcode Admin"
+							required
+							autocomplete="current-password"
+							class="w-full rounded-xl border border-[#c4a252]/50 bg-[#1c0811] px-3.5 py-2.5 text-center font-mono text-sm tracking-widest text-[#fff0f4] outline-none placeholder:font-sans placeholder:text-xs placeholder:text-[#f4d7e0]/40 focus:border-[#c4a252] focus:ring-2 focus:ring-[#c4a252]/30"
+						/>
+						<div id="admin-auth-error" class="hidden font-sans text-xs font-medium text-rose-400">
+							Passcode salah atau tidak sah.
+						</div>
+						<button
+							type="submit"
+							class="w-full rounded-full border border-[#c4a252] bg-gradient-to-r from-[#4f142b] via-[#6e1d3b] to-[#4f142b] py-2.5 font-sans text-xs font-semibold uppercase tracking-wider text-[#e4d3a0] shadow-md transition hover:brightness-110 active:scale-95"
+						>
+							Buka Akses
+						</button>
+					</form>
+				</div>
+			</div>
+		</main>
+	</div>
+
+
+	<script>
+		interface Guest {
+			id: number;
+			name: string;
+			slug: string;
+			status_rsvp?: string;
+			wishes?: string;
+			created_at?: string;
+		}
+
+		const guestNameInput = document.querySelector("#guest-name-input");
+		const previewRecipientName = document.querySelector("#preview-recipient-name");
+		const charCounter = document.querySelector("#char-counter");
+		const addGuestForm = document.querySelector("#add-guest-form");
+		const submitBtn = document.querySelector("#submit-btn");
+		const submitText = document.querySelector("#submit-text");
+		const submitSpinner = document.querySelector("#submit-spinner");
+
+		const resultBox = document.querySelector("#result-box");
+		const slugBadge = document.querySelector("#slug-badge");
+		const generatedLinkInput = document.querySelector("#generated-link-input");
+		const copyLinkBtn = document.querySelector("#copy-link-btn");
+		const copyBtnText = document.querySelector("#copy-btn-text");
+		const testLinkBtn = document.querySelector("#test-link-btn");
+
+		const guestCount = document.querySelector("#guest-count");
+		const guestsWrapper = document.querySelector("#guests-wrapper");
+		const loadingPlaceholder = document.querySelector("#loading-placeholder");
+		const emptyPlaceholder = document.querySelector("#empty-placeholder");
+		const refreshBtn = document.querySelector("#refresh-btn");
+
+		// 1. Real-time Live Typing Preview
+		if (guestNameInput instanceof HTMLInputElement && previewRecipientName instanceof HTMLElement) {
+			guestNameInput.addEventListener("input", () => {
+				const val = guestNameInput.value.trim();
+				previewRecipientName.textContent = val || "Tamu Undangan";
+				if (charCounter instanceof HTMLElement) {
+					charCounter.textContent = `${guestNameInput.value.length} / 80`;
+				}
+			});
+		}
+
+		// Helper URL generator
+		const getGuestUrl = (slug: string) => {
+			const baseUrl = window.location.origin;
+			return `${baseUrl}/?to=${encodeURIComponent(slug)}`;
+		};
+
+		// Elements
+		const authModal = document.querySelector("#admin-auth-modal");
+		const authForm = document.querySelector("#admin-auth-form");
+		const authInput = document.querySelector("#admin-passcode-input");
+		const authError = document.querySelector("#admin-auth-error");
+		const lockBtn = document.querySelector("#admin-lock-btn");
+
+		const getAdminKey = () => sessionStorage.getItem("invitation_admin_key") || "";
+		const setAdminKey = (val: string) => sessionStorage.setItem("invitation_admin_key", val);
+		const clearAdminKey = () => sessionStorage.removeItem("invitation_admin_key");
+
+		const showAuthModal = (withError = false) => {
+			if (authModal instanceof HTMLElement) {
+				authModal.classList.remove("hidden");
+				if (authError instanceof HTMLElement) {
+					if (withError) authError.classList.remove("hidden");
+					else authError.classList.add("hidden");
+				}
+				if (authInput instanceof HTMLInputElement) {
+					authInput.value = "";
+					authInput.focus();
+				}
+			}
+		};
+
+		const hideAuthModal = () => {
+			if (authModal instanceof HTMLElement) {
+				authModal.classList.add("hidden");
+			}
+		};
+
+		// Wrapper fetch dengan header otentikasi admin otomatis
+		async function adminFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+			const headers = new Headers(init.headers || {});
+			const key = getAdminKey();
+			if (key) {
+				headers.set("x-admin-key", key);
+			}
+
+			const res = await fetch(input, { ...init, headers });
+			if (res.status === 401) {
+				clearAdminKey();
+				showAuthModal(true);
+			}
+			return res;
+		}
+
+		// Auth Form Submit
+		if (authForm instanceof HTMLFormElement) {
+			authForm.addEventListener("submit", async (e) => {
+				e.preventDefault();
+				if (!(authInput instanceof HTMLInputElement)) return;
+				const enteredKey = authInput.value.trim();
+				if (!enteredKey) return;
+
+				// Verifikasi passcode langsung ke API
+				try {
+					const testRes = await fetch("/api/guests", {
+						headers: { "x-admin-key": enteredKey },
+					});
+
+					if (testRes.status === 401) {
+						if (authError instanceof HTMLElement) {
+							authError.textContent = "Passcode salah atau tidak sah.";
+							authError.classList.remove("hidden");
+						}
+						return;
+					}
+
+					setAdminKey(enteredKey);
+					hideAuthModal();
+					await loadGuests();
+				} catch (err) {
+					if (authError instanceof HTMLElement) {
+						authError.textContent = "Gagal memverifikasi ke server.";
+						authError.classList.remove("hidden");
+					}
+				}
+			});
+		}
+
+		// Lock Session Button
+		if (lockBtn instanceof HTMLButtonElement) {
+			lockBtn.addEventListener("click", () => {
+				clearAdminKey();
+				if (guestsWrapper instanceof HTMLElement) guestsWrapper.innerHTML = "";
+				if (guestCount instanceof HTMLElement) guestCount.textContent = "0 Tamu";
+				showAuthModal(false);
+			});
+		}
+
+		// 2. Fetch & Render Guests from D1
+		async function loadGuests() {
+			try {
+				if (loadingPlaceholder) loadingPlaceholder.classList.remove("hidden");
+				if (emptyPlaceholder) emptyPlaceholder.classList.add("hidden");
+				if (guestsWrapper) guestsWrapper.innerHTML = "";
+
+				const res = await adminFetch("/api/guests");
+				if (res.status === 401) return; // Modal sudah otomatis terbuka
+				if (!res.ok) throw new Error("Gagal mengambil data dari D1.");
+
+				const guests: Guest[] = await res.json();
+
+				if (loadingPlaceholder) loadingPlaceholder.classList.add("hidden");
+
+				if (guestCount instanceof HTMLElement) {
+					guestCount.textContent = `${guests.length} Tamu`;
+				}
+
+				if (guests.length === 0) {
+					if (emptyPlaceholder) emptyPlaceholder.classList.remove("hidden");
+					return;
+				}
+
+				if (guestsWrapper instanceof HTMLElement) {
+					guestsWrapper.innerHTML = "";
+					guests.forEach((guest) => {
+						const card = document.createElement("div");
+						card.className =
+							"flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-[#c4a252]/25 bg-[#241018]/90 p-3.5 transition hover:border-[#c4a252]/50";
+
+						const url = getGuestUrl(guest.slug);
+
+						let rsvpBadge = `<span class="rounded bg-yellow-900/40 text-yellow-300 border border-yellow-700/50 px-2 py-0.5 text-[9px] uppercase font-semibold">Pending</span>`;
+						if (guest.status_rsvp === "Hadir") {
+							rsvpBadge = `<span class="rounded bg-green-900/40 text-green-300 border border-green-700/50 px-2 py-0.5 text-[9px] uppercase font-semibold">Hadir</span>`;
+						} else if (guest.status_rsvp === "Tidak Hadir" || guest.status_rsvp === "Tidak hadir") {
+							rsvpBadge = `<span class="rounded bg-red-900/40 text-red-300 border border-red-700/50 px-2 py-0.5 text-[9px] uppercase font-semibold">Tidak Hadir</span>`;
+						}
+
+						card.innerHTML = `
+							<div class="min-w-0 flex-1">
+								<div class="flex items-center gap-2">
+									<h4 class="font-serif text-base font-medium text-[#fff0f4] truncate">${guest.name}</h4>
+									${rsvpBadge}
+								</div>
+								<div class="mt-1 flex items-center gap-2 font-mono text-[11px] text-[#e4d3a0]/80">
+									<span class="rounded bg-[#3a0d1e] px-1.5 py-0.5 text-[9px]">slug: ${guest.slug}</span>
+									${guest.wishes ? `<span class="text-[10px] text-[#f4d7e0]/60 italic truncate max-w-[200px]" title="${guest.wishes}">"${guest.wishes}"</span>` : ""}
+								</div>
+							</div>
+							<div class="flex items-center gap-2 shrink-0">
+								<button
+									type="button"
+									data-url="${url}"
+									class="copy-item-btn inline-flex items-center gap-1 rounded-lg border border-[#c4a252]/50 bg-[#3a0d1e] px-2.5 py-1.5 font-sans text-xs text-[#e4d3a0] hover:bg-[#4f142b] active:scale-95"
+									title="Salin tautan tamu ini"
+								>
+									<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+										<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+									</svg>
+									<span>Salin</span>
+								</button>
+								<a
+									href="${url}"
+									target="_blank"
+									class="inline-flex items-center rounded-lg border border-[#c4a252]/30 p-1.5 text-[#e4d3a0] hover:border-[#e4d3a0]"
+									title="Buka preview undangan tamu ini"
+								>
+									<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+										<polyline points="15 3 21 3 21 9"></polyline>
+										<line x1="10" y1="14" x2="21" y2="3"></line>
+									</svg>
+								</a>
+								<button
+									type="button"
+									data-id="${guest.id}"
+									class="delete-guest-btn inline-flex items-center rounded-lg border border-red-800/40 p-1.5 text-red-400 hover:bg-red-950/50 hover:text-red-300"
+									title="Hapus tamu"
+								>
+									<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<polyline points="3 6 5 6 21 6"></polyline>
+										<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+									</svg>
+								</button>
+							</div>
+						`;
+						guestsWrapper.appendChild(card);
+					});
+
+					// Bind copy buttons
+					document.querySelectorAll(".copy-item-btn").forEach((btn) => {
+						btn.addEventListener("click", async (e) => {
+							const target = e.currentTarget as HTMLElement;
+							const link = target.getAttribute("data-url");
+							if (link) {
+								await navigator.clipboard.writeText(link);
+								const label = target.querySelector("span");
+								if (label) {
+									const orig = label.textContent;
+									label.textContent = "Tersalin!";
+									setTimeout(() => {
+										label.textContent = orig;
+									}, 1500);
+								}
+							}
+						});
+					});
+
+					// Bind delete buttons
+					document.querySelectorAll(".delete-guest-btn").forEach((btn) => {
+						btn.addEventListener("click", async (e) => {
+							const target = e.currentTarget as HTMLElement;
+							const id = target.getAttribute("data-id");
+							if (!id || !confirm("Yakin ingin menghapus data tamu ini dari D1?")) return;
+
+							try {
+								const res = await adminFetch("/api/guests", {
+									method: "DELETE",
+									headers: { "Content-Type": "application/json" },
+									body: JSON.stringify({ id: Number(id) }),
+								});
+								if (res.ok) {
+									await loadGuests();
+								} else {
+									alert("Gagal menghapus data tamu.");
+								}
+							} catch (err) {
+								console.error(err);
+								alert("Terjadi kesalahan.");
+							}
+						});
+					});
+				}
+			} catch (err) {
+				console.error("Gagal load tamu:", err);
+				if (loadingPlaceholder) {
+					loadingPlaceholder.textContent = "Gagal memuat daftar tamu. Pastikan D1 database aktif.";
+				}
+			}
+		}
+
+		// 3. Handle Add Guest Form Submit
+		if (addGuestForm instanceof HTMLFormElement) {
+			addGuestForm.addEventListener("submit", async (e) => {
+				e.preventDefault();
+				if (!(guestNameInput instanceof HTMLInputElement)) return;
+
+				const name = guestNameInput.value.trim();
+				if (!name) return;
+
+				// UI loading state
+				if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = true;
+				if (submitText instanceof HTMLElement) submitText.textContent = "Menyimpan ke D1...";
+				if (submitSpinner instanceof HTMLElement) submitSpinner.classList.remove("hidden");
+
+				try {
+					const res = await adminFetch("/api/guests", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ name }),
+					});
+
+					const data = await res.json();
+					if (!res.ok) {
+						throw new Error(data.error || "Gagal menyimpan tamu.");
+					}
+
+					const guest = data.guest;
+					const finalUrl = getGuestUrl(guest.slug);
+
+					// Show result box
+					if (resultBox instanceof HTMLElement) resultBox.classList.remove("hidden");
+					if (slugBadge instanceof HTMLElement) slugBadge.textContent = guest.slug;
+					if (generatedLinkInput instanceof HTMLInputElement) {
+						generatedLinkInput.value = finalUrl;
+						generatedLinkInput.select();
+					}
+					if (testLinkBtn instanceof HTMLAnchorElement) testLinkBtn.href = finalUrl;
+
+					// Reset input
+					guestNameInput.value = "";
+					if (charCounter instanceof HTMLElement) charCounter.textContent = "0 / 80";
+
+					// Reload list
+					await loadGuests();
+				} catch (err: unknown) {
+					const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+					alert(msg);
+				} finally {
+					if (submitBtn instanceof HTMLButtonElement) submitBtn.disabled = false;
+					if (submitText instanceof HTMLElement) submitText.textContent = "Simpan ke D1 & Buat Tautan";
+					if (submitSpinner instanceof HTMLElement) submitSpinner.classList.add("hidden");
+				}
+			});
+		}
+
+		// 4. Copy Main Generated Link
+		if (copyLinkBtn instanceof HTMLButtonElement && generatedLinkInput instanceof HTMLInputElement) {
+			copyLinkBtn.addEventListener("click", async () => {
+				await navigator.clipboard.writeText(generatedLinkInput.value);
+				if (copyBtnText instanceof HTMLElement) {
+					const orig = copyBtnText.textContent;
+					copyBtnText.textContent = "Tersalin!";
+					setTimeout(() => {
+						copyBtnText.textContent = orig;
+					}, 2000);
+				}
+			});
+		}
+
+		// 5. Refresh Button
+		if (refreshBtn instanceof HTMLButtonElement) {
+			refreshBtn.addEventListener("click", () => {
+				void loadGuests();
+			});
+		}
+
+		// Initial load
+		void loadGuests();
+	</script>
+</Layout>

@@ -1,5 +1,5 @@
 ---
-
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "";
 ---
 
 <section
@@ -22,13 +22,27 @@
 		</p>
 
 		<form id="rsvp-form" class="mt-5 space-y-3.5">
+			<!-- Anti-Bot Honeypot: Offscreen CSS technique (Invisible to humans, catches dumb spam bots) -->
+			<div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+				<label for="rsvp-website">Leave blank</label>
+				<input type="text" id="rsvp-website" name="website" tabindex="-1" autocomplete="off" />
+			</div>
+
 			<div>
-				<label
-					for="guest-name"
-					class="mb-1.5 block font-sans text-[10px] font-semibold uppercase tracking-wider text-[#6e1d3b]"
-				>
-					Nama Tamu
-				</label>
+				<div class="mb-1.5 flex items-center justify-between">
+					<label
+						for="guest-name"
+						class="block font-sans text-[10px] font-semibold uppercase tracking-wider text-[#6e1d3b]"
+					>
+						Nama Tamu
+					</label>
+					<span
+						id="locked-guest-badge"
+						class="hidden rounded-full border border-[#c4a252]/50 bg-[#c4a252]/20 px-2 py-0.5 font-sans text-[8px] font-semibold text-[#6e1d3b]"
+					>
+						Tamu Undangan
+					</span>
+				</div>
 				<input
 					id="guest-name"
 					name="guestName"
@@ -36,7 +50,7 @@
 					maxlength="80"
 					autocomplete="name"
 					required
-					class="w-full rounded-xl border border-[#c4a252]/70 bg-[#fff7f9] px-3.5 py-2.5 font-sans text-xs text-[#4f142b] shadow-2xs outline-none transition placeholder:text-[#8c4059]/60 focus:border-[#6e1d3b] focus:bg-[#fdecf2] focus:ring-2 focus:ring-[#c4a252]/30"
+					class="w-full rounded-xl border border-[#c4a252]/70 bg-[#fff7f9] px-3.5 py-2.5 font-sans text-xs text-[#4f142b] shadow-2xs outline-none transition placeholder:text-[#8c4059]/60 focus:border-[#6e1d3b] focus:bg-[#fdecf2] focus:ring-2 focus:ring-[#c4a252]/30 read-only:cursor-not-allowed read-only:bg-[#f4d7e0]/35 read-only:font-semibold read-only:text-[#6e1d3b]"
 					placeholder="Masukkan nama lengkap Anda"
 				/>
 			</div>
@@ -92,11 +106,33 @@
 				></textarea>
 			</div>
 
+			<!-- Cloudflare Turnstile Container -->
+			{turnstileSiteKey && (
+				<div class="flex justify-center pt-1 overflow-hidden">
+					<div
+						id="turnstile-container"
+						class="cf-turnstile"
+						data-sitekey={turnstileSiteKey}
+						data-theme="light"
+						data-size="flexible"
+					></div>
+				</div>
+			)}
+
+			<!-- Status Feedback Message -->
+			<div id="rsvp-feedback" class="hidden rounded-xl p-2.5 text-center font-sans text-xs font-medium transition-all" role="alert"></div>
+
+			<!-- Submit Button with Anti-Double Click Loading State -->
 			<button
+				id="rsvp-submit-btn"
 				type="submit"
-				class="w-full rounded-full border border-[#c4a252] bg-gradient-to-r from-[#4f142b] via-[#6e1d3b] to-[#4f142b] px-4 py-2.5 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[#e4d3a0] shadow-md transition hover:brightness-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c4a252]"
+				class="w-full inline-flex items-center justify-center gap-2 rounded-full border border-[#c4a252] bg-gradient-to-r from-[#4f142b] via-[#6e1d3b] to-[#4f142b] px-4 py-2.5 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-[#e4d3a0] shadow-md transition hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c4a252]"
 			>
-				Kirim
+				<span id="rsvp-btn-text">Kirim Konfirmasi</span>
+				<svg id="rsvp-spinner" class="hidden h-3.5 w-3.5 animate-spin text-[#e4d3a0]" viewBox="0 0 24 24" fill="none">
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+				</svg>
 			</button>
 		</form>
 	</div>

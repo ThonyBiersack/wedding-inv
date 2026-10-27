@@ -1,3 +1,11 @@
+---
+interface Props {
+	guestName?: string;
+}
+
+const { guestName = "Tamu Undangan" } = Astro.props;
+---
+
 <section class="relative isolate -mt-5 flex h-[100dvh] w-full flex-col justify-between overflow-hidden text-[#fff7f9] md:h-[min(48rem,calc(100dvh-2rem))]" aria-label="Sampul undangan pernikahan">
 	<img
 		src="/photo/IMG_20261014_194145.webp"
@@ -26,7 +34,7 @@
 			Kepada Yth.
 		</p>
 		<p id="cover-recipient-name" class="mt-2 break-words font-serif text-2xl font-medium leading-tight sm:text-3xl text-[#fff0f4]">
-			Tamu Undangan
+			{guestName}
 		</p>
 	</div>
 </section>

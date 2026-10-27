@@ -11,6 +11,33 @@ import InvitationGift from "../components/InvitationGift.astro";
 import InvitationRsvp from "../components/InvitationRsvp.astro";
 import InvitationWishes from "../components/InvitationWishes.astro";
 import InvitationClosing from "../components/InvitationClosing.astro";
+import { getDb } from "../lib/db";
+
+export const prerender = false;
+
+const toParam = Astro.url.searchParams.get("to")?.trim() || "";
+let verifiedGuest: { id: number; name: string; slug: string } | null = null;
+
+if (toParam) {
+	try {
+		const db = await getDb();
+		if (db) {
+			const record = await db
+				.prepare("SELECT id, name, slug FROM guests WHERE slug = ?")
+				.bind(toParam)
+				.first<{ id: number; name: string; slug: string }>();
+			if (record) {
+				verifiedGuest = record;
+			}
+		}
+	} catch (e) {
+		console.error("Gagal validasi tamu di server:", e);
+	}
+}
+
+const guestDisplayName = verifiedGuest ? verifiedGuest.name : "Tamu Undangan";
+const guestSlug = verifiedGuest ? verifiedGuest.slug : "";
+const isRegisteredGuest = Boolean(verifiedGuest);
 
 const photos = [
 	"IMG_20261014_194408.webp",
@@ -32,6 +59,10 @@ const photos = [
 
 <Layout>
 	<main
+		id="main-stage"
+		data-registered={isRegisteredGuest ? "true" : "false"}
+		data-guest-name={guestDisplayName}
+		data-guest-slug={guestSlug}
 		class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-5 py-12"
 	>
 		<BatikBackground />
@@ -189,7 +220,7 @@ const photos = [
 							preload="none"
 							loop
 							hidden></audio>
-						<InvitationCover />
+						<InvitationCover guestName={guestDisplayName} />
 
 						<InvitationVerse />
 
@@ -257,9 +288,9 @@ const photos = [
 						</p>
 						<p
 							id="recipient-name"
-							class="mt-1 break-words font-serif text-base leading-tight"
+							class="mt-1 break-words font-serif text-[17px] font-bold leading-tight tracking-wide text-[#3a0d1e] sm:text-lg"
 						>
-							Tamu Undangan
+							{guestDisplayName}
 						</p>
 					</div>
 				</div>
@@ -347,57 +378,184 @@ const photos = [
 			throw new Error("Invitation elements could not be initialized.");
 		}
 
-		const recipient = new URLSearchParams(window.location.search)
-			.get("to")
-			?.trim();
-		if (recipient) {
-			const displayName = recipient.replace(/\s+/g, " ").slice(0, 60);
-			recipientName.textContent = displayName;
-			coverRecipientName.textContent = displayName;
+		const mainStage = document.querySelector("#main-stage");
+		const isRegistered = mainStage?.getAttribute("data-registered") === "true";
+		const registeredGuestName = mainStage?.getAttribute("data-guest-name") || "Tamu Undangan";
+		const registeredGuestSlug = mainStage?.getAttribute("data-guest-slug") || "";
+
+		const guestNameInput = document.querySelector("#guest-name");
+		const lockedGuestBadge = document.querySelector("#locked-guest-badge");
+		const rsvpSubmitBtn = rsvpForm.querySelector("button[type='submit']");
+
+		if (isRegistered && registeredGuestSlug) {
+			recipientName.textContent = registeredGuestName;
+			coverRecipientName.textContent = registeredGuestName;
+
+			if (guestNameInput instanceof HTMLInputElement) {
+				guestNameInput.value = registeredGuestName;
+				guestNameInput.readOnly = true;
+				if (lockedGuestBadge instanceof HTMLElement) {
+					lockedGuestBadge.classList.remove("hidden");
+				}
+			}
+		} else {
+			recipientName.textContent = "Tamu Undangan";
+			coverRecipientName.textContent = "Tamu Undangan";
+			if (guestNameInput instanceof HTMLInputElement) {
+				guestNameInput.value = "";
+				guestNameInput.readOnly = false;
+				guestNameInput.placeholder = "Hanya tamu resmi yang dapat mengisi RSVP";
+				guestNameInput.disabled = true;
+			}
+			if (rsvpSubmitBtn instanceof HTMLButtonElement) {
+				rsvpSubmitBtn.disabled = true;
+				rsvpSubmitBtn.classList.add("opacity-50", "cursor-not-allowed");
+				rsvpSubmitBtn.title = "Gunakan tautan undangan resmi untuk mengisi RSVP.";
+			}
+			if (lockedGuestBadge instanceof HTMLElement) {
+				lockedGuestBadge.textContent = "Khusus Tamu Terdaftar";
+				lockedGuestBadge.classList.remove("hidden");
+			}
 		}
 
-		rsvpForm.addEventListener("submit", (event) => {
-			event.preventDefault();
-			const formData = new FormData(rsvpForm);
-			const guestName = formData.get("guestName");
-			const attendance = formData.get("attendance");
-			const message = formData.get("message");
-
-			if (
-				typeof guestName !== "string" ||
-				typeof attendance !== "string" ||
-				typeof message !== "string"
-			) {
-				throw new Error("RSVP form values are invalid.");
-			}
-
+		const renderWishCard = (nameStr: string, attendanceStr: string, msgStr: string) => {
 			const card = document.createElement("article");
 			card.className =
 				"rounded-xl border border-[#c4a252]/60 bg-gradient-to-b from-[#fff7f9] to-[#f4d7e0] p-3.5 text-left shadow-2xs";
 
-			const name = document.createElement("h3");
-			name.className = "font-serif text-sm font-medium text-[#4f142b]";
-			name.textContent = guestName.trim();
+			const headerEl = document.createElement("div");
+			headerEl.className = "flex items-start justify-between gap-2.5";
 
-			const response = document.createElement("span");
-			response.className =
-				"mt-1 inline-block rounded-full border border-[#c4a252]/60 bg-[#fff7f9] px-2 py-0.5 font-sans text-[8px] font-semibold uppercase tracking-wider text-[#6e1d3b]";
-			response.textContent =
-				attendance === "Hadir" ? "Hadir" : "Tidak dapat hadir";
+			const nameEl = document.createElement("h3");
+			nameEl.className = "min-w-0 flex-1 break-words font-serif text-[15px] font-bold leading-snug tracking-wide text-[#3a0d1e] sm:text-base";
+			nameEl.textContent = nameStr;
 
-			const wish = document.createElement("p");
-			wish.className =
+			const isPresent = attendanceStr.trim().toUpperCase() === "HADIR";
+
+			const responseEl = document.createElement("span");
+			responseEl.className = isPresent
+				? "shrink-0 rounded-full border border-[#b38e2d] bg-gradient-to-r from-[#e5c158] to-[#c4a252] px-2.5 py-0.5 font-sans text-[8px] font-bold uppercase tracking-wider text-[#1a0a10] shadow-xs"
+				: "shrink-0 rounded-full border border-[#3a0d1e] bg-[#4f142b] px-2.5 py-0.5 font-sans text-[8px] font-medium uppercase tracking-wider text-white shadow-xs";
+			responseEl.textContent = isPresent ? "Hadir" : "Tidak Hadir";
+
+			headerEl.append(nameEl, responseEl);
+
+			const wishEl = document.createElement("p");
+			wishEl.className =
 				"mt-2 whitespace-pre-wrap break-words font-sans text-xs leading-relaxed text-[#4f142b]/90";
-			wish.textContent = message.trim();
+			wishEl.textContent = msgStr;
 
-			card.append(name, response, wish);
-			wishList.prepend(card);
-			guestWishes.classList.remove("hidden");
-			rsvpForm.reset();
-			guestWishes.scrollIntoView({
-				behavior: "smooth",
-				block: "nearest",
-			});
+			card.append(headerEl, wishEl);
+			return card;
+		};
+
+		// Muat riwayat ucapan dari Cloudflare D1
+		fetch("/api/rsvp")
+			.then((res) => res.json())
+			.then((wishes: Array<{ name: string; status_rsvp: string; wishes: string }>) => {
+				if (Array.isArray(wishes) && wishes.length > 0) {
+					wishes.forEach((w) => {
+						if (w.wishes && w.name) {
+							const card = renderWishCard(w.name, w.status_rsvp || "Hadir", w.wishes);
+							wishList.appendChild(card);
+						}
+					});
+					guestWishes.classList.remove("hidden");
+				}
+			})
+			.catch(() => {});
+
+		const rsvpFeedback = document.querySelector("#rsvp-feedback");
+		const rsvpBtnText = document.querySelector("#rsvp-btn-text");
+		const rsvpSpinner = document.querySelector("#rsvp-spinner");
+
+		const showFeedback = (msg: string, isError = false) => {
+			if (!rsvpFeedback) return;
+			rsvpFeedback.textContent = msg;
+			rsvpFeedback.className = isError
+				? "block rounded-xl border border-rose-300 bg-rose-50/90 p-2.5 text-center font-sans text-xs font-medium text-rose-800"
+				: "block rounded-xl border border-emerald-300 bg-emerald-50/90 p-2.5 text-center font-sans text-xs font-medium text-emerald-800";
+		};
+
+		rsvpForm.addEventListener("submit", async (event) => {
+			event.preventDefault();
+
+			if (!isRegistered || !registeredGuestSlug) {
+				showFeedback("Akses ditolak: Hanya tamu yang memiliki tautan resmi terdaftar yang dapat mengisi RSVP.", true);
+				return;
+			}
+
+			const formData = new FormData(rsvpForm);
+			const attendance = formData.get("attendance");
+			const message = formData.get("message");
+			const honeypot = formData.get("website");
+			const turnstileToken = formData.get("cf-turnstile-response");
+
+			if (typeof attendance !== "string" || typeof message !== "string") {
+				showFeedback("Mohon lengkapi kehadiran dan pesan.", true);
+				return;
+			}
+
+			// Anti-Double Click / Loading State
+			if (rsvpSubmitBtn instanceof HTMLButtonElement) {
+				rsvpSubmitBtn.disabled = true;
+			}
+			rsvpBtnText?.classList.add("opacity-60");
+			rsvpSpinner?.classList.remove("hidden");
+
+			try {
+				const res = await fetch("/api/rsvp", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						attendance,
+						message: message.trim(),
+						slug: registeredGuestSlug,
+						website: honeypot || "",
+						"cf-turnstile-response": turnstileToken || "",
+					}),
+				});
+
+				const resData = await res.json().catch(() => ({}));
+
+				if (!res.ok) {
+					showFeedback(resData.error || "Gagal menyimpan RSVP.", true);
+					return;
+				}
+
+				showFeedback("Terima kasih! Konfirmasi kehadiran dan doa Anda telah tersimpan.");
+
+				const card = renderWishCard(resData.guestName || registeredGuestName, attendance, message.trim());
+				wishList.prepend(card);
+				guestWishes.classList.remove("hidden");
+
+				rsvpForm.reset();
+				if (guestNameInput instanceof HTMLInputElement) {
+					guestNameInput.value = registeredGuestName;
+					guestNameInput.readOnly = true;
+				}
+
+				// Reset Cloudflare Turnstile widget jika terpasang
+				if (typeof (window as any).turnstile?.reset === "function") {
+					try {
+						(window as any).turnstile.reset();
+					} catch {}
+				}
+
+				guestWishes.scrollIntoView({
+					behavior: "smooth",
+					block: "nearest",
+				});
+			} catch (err) {
+				console.error("Gagal simpan RSVP ke D1:", err);
+				showFeedback("Terjadi kesalahan jaringan. Silakan coba lagi.", true);
+			} finally {
+				if (rsvpSubmitBtn instanceof HTMLButtonElement && isRegistered) {
+					rsvpSubmitBtn.disabled = false;
+				}
+				rsvpBtnText?.classList.remove("opacity-60");
+				rsvpSpinner?.classList.add("hidden");
+			}
 		});
 
 		const mainHeader = document.querySelector("#main-header");

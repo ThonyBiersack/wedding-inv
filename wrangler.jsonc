@@ -1,0 +1,13 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "invitation-web",
+	"compatibility_date": "2026-02-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "invitation_db",
+			"database_id": "local-d1-invitation-db"
+		}
+	]
+}

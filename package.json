@@ -9,13 +9,18 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "d1:init": "wrangler d1 execute invitation_db --local --file=./schema.sql",
+    "d1:init:remote": "wrangler d1 execute invitation_db --remote --file=./schema.sql"
   },
   "dependencies": {
     "astro": "^7.4.0"
   },
   "devDependencies": {
+    "@astrojs/cloudflare": "^14.4.2",
+    "@cloudflare/workers-types": "^4.20260226.0",
     "@tailwindcss/vite": "^4.3.3",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "wrangler": "^4.153.0"
   }
 }
