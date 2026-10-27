@@ -23,18 +23,6 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.font-script {
-	font-family: "Great Vibes", cursive;
-}
-
-.font-serif {
-	font-family: "Cormorant Garamond", Georgia, serif;
-}
-
-.font-sans {
-	font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
 @keyframes spin-slow {
 	from {
 		transform: rotate(0deg);
@@ -87,81 +75,165 @@ button {
 	background: radial-gradient(ellipse at center, rgb(79 20 43 / 55%) 0%, rgb(79 20 43 / 35%) 46%, rgb(79 20 43 / 8%) 100%);
 }
 
-.envelope-flap {
-	transform-origin: top center;
+.page-header,
+.page-footer {
+	will-change: opacity, transform;
 	transition:
-		transform 850ms cubic-bezier(0.2, 0.75, 0.25, 1),
-		z-index 0ms 425ms;
+		opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+		transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-header.is-hidden,
+.page-footer.is-hidden {
+	opacity: 0;
+	transform: translateY(-20px);
+	pointer-events: none;
 }
 
 .envelope-stage {
-	overflow: hidden;
+	position: relative;
+	overflow: visible;
+	perspective: 1200px;
 }
 
-.envelope-front {
-	background-color: var(--gold);
-	transition: opacity 450ms ease 250ms;
+/* Interior Dinding Belakang Amplop */
+.envelope-back {
+	background: linear-gradient(to bottom, #7e631d, #57410f);
+	box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.7);
 }
 
-.invitation-letter {
+/* Flap Wrapper 3D */
+.envelope-flap-wrapper {
+	transform-origin: top center;
+	transform-style: preserve-3d;
+	z-index: 30;
+	will-change: transform;
 	transition:
-		border-radius 700ms ease,
-		box-shadow 700ms ease;
+		transform 850ms cubic-bezier(0.4, 0, 0.2, 1),
+		z-index 0ms 425ms;
 }
 
-.envelope-stage.is-open .envelope-flap {
-	z-index: 1;
+.envelope-stage.is-flap-open .envelope-flap-wrapper {
+	z-index: 2; /* Pindah ke belakang surat saat melewati sudut 90deg */
 	transform: rotateX(180deg);
 }
 
-.envelope-stage.is-open {
-	overflow: visible;
-	perspective: none;
+.envelope-flap-front,
+.envelope-flap-back {
+	position: absolute;
+	inset: 0;
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	transform-style: preserve-3d;
 }
 
-.envelope-stage.is-open .envelope-front {
+.envelope-flap-front {
+	z-index: 2;
+	transform: rotateX(0deg);
+}
+
+.envelope-flap-back {
+	transform: rotateY(180deg);
+}
+
+.envelope-flap-shape {
+	filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.3));
+	transition: filter 850ms ease;
+}
+
+.envelope-stage.is-flap-open .envelope-flap-front .envelope-flap-shape {
+	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.envelope-stage.is-flap-open .envelope-flap-back .envelope-flap-shape {
+	filter: drop-shadow(0 -8px 14px rgba(0, 0, 0, 0.35));
+}
+
+/* Segel Lilin */
+.envelope-seal {
+	will-change: transform;
+	transition:
+		transform 250ms cubic-bezier(0.16, 1, 0.3, 1),
+		box-shadow 250ms ease;
+}
+
+.envelope-seal.is-clicked {
+	transform: translate(-50%, 50%) scale(0.92) !important;
+}
+
+.envelope-stage.is-flap-open .envelope-seal {
+	pointer-events: none !important;
+}
+
+/* Saku Depan: Berada di depan surat (z-index 20) */
+.envelope-front {
+	z-index: 20;
+	pointer-events: none;
+	will-change: opacity, transform;
+	filter: drop-shadow(0 -3px 6px rgba(0, 0, 0, 0.16));
+	transition:
+		opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+		transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Kertas Surat Undangan: Berada di antara back panel dan front pocket (z-index 10) */
+.invitation-letter {
+	transform-origin: center center;
+	z-index: 10;
+	overflow: hidden !important;
+	will-change: transform;
+	backface-visibility: hidden;
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+	transition:
+		transform 850ms cubic-bezier(0.2, 0.9, 0.3, 1),
+		box-shadow 850ms ease;
+}
+
+/* Tahap Saat Surat Meluncur Naik Keluar dari Saku Amplop dan Diam di Posisi Tengah */
+.envelope-stage.is-sliding-out:not(.is-open) .invitation-letter {
+	transform: translate3d(0, -58%, 0);
+	box-shadow: 0 20px 45px -6px rgba(0, 0, 0, 0.55), 0 0 15px rgba(196, 162, 82, 0.2);
+}
+
+/* Tahap Fullscreen Reading Mode */
+.envelope-stage.is-open {
+	perspective: none !important;
+}
+
+.envelope-stage.is-open .envelope-front,
+.envelope-stage.is-open .envelope-back,
+.envelope-stage.is-open .envelope-flap-wrapper {
 	opacity: 0;
+	transform: translate3d(0, 60px, 0) scale(0.9);
+	pointer-events: none;
+	transition:
+		opacity 550ms cubic-bezier(0.16, 1, 0.3, 1),
+		transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .envelope-stage.is-open .invitation-letter {
 	position: fixed;
-	inset: 0;
+	inset: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	margin-inline: auto !important;
+	margin-block: auto !important;
 	z-index: 50;
-	width: min(56rem, 100vw);
+	width: min(56rem, 100vw) !important;
 	height: 100dvh;
 	max-height: 100dvh;
-	margin: auto;
 	border-radius: 0;
 	padding-top: max(1.25rem, env(safe-area-inset-top));
 	padding-right: 0;
 	padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
 	padding-left: 0;
 	box-shadow: 0 24px 45px rgb(66 53 39 / 18%);
+	/* PENTING: Matikan CSS transition agar tidak bentrok dengan Web Animations API */
+	transition: none !important;
 }
 
-#invitation-section.is-open {
-	z-index: 40;
-}
-
-@media (min-width: 768px) {
-	.envelope-stage.is-open .invitation-letter {
-		inset: 1rem;
-		width: min(56rem, calc(100vw - 2rem));
-		height: min(48rem, calc(100dvh - 2rem));
-		max-height: calc(100dvh - 2rem);
-		border-radius: 0.25rem;
-	}
-}
-
-.envelope-seal {
-	transition:
-		opacity 250ms ease,
-		transform 350ms ease;
-}
-
-.envelope-stage.is-open .envelope-seal {
-	opacity: 0;
-	transform: translate(-50%, -50%) scale(0.65);
+.envelope-stage.is-open .invitation-letter.is-scrollable {
+	overflow-y: auto !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

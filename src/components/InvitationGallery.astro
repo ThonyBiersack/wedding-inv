@@ -27,11 +27,12 @@ const { photos } = Astro.props;
 				<button
 					type="button"
 					data-gallery-index={index}
+					data-gallery-full={`/photo/${photo}`}
 					aria-label={`Perbesar foto Anggi dan Asep ${index + 1}`}
 					class="group cursor-zoom-in overflow-hidden rounded-xl border border-[#c4a252]/60 shadow-2xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6e1d3b]"
 				>
 					<img
-						src={`/photo/${photo}`}
+						src={`/photo/thumb/${photo}`} decoding="async"
 						alt={`Foto Anggi dan Asep ${index + 1}`}
 						loading="lazy"
 						class="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
@@ -58,6 +59,7 @@ const { photos } = Astro.props;
 				data-gallery-preview-image
 				src=""
 				alt=""
+				decoding="async"
 				class="max-h-[82dvh] max-w-full rounded-sm object-contain shadow-2xl"
 			/>
 			<div
@@ -129,7 +131,8 @@ const { photos } = Astro.props;
 			);
 		}
 
-		previewImage.src = thumbnail.src;
+		const fullSrc = galleryButtons[activeIndex].getAttribute("data-gallery-full") || thumbnail.src;
+		previewImage.src = fullSrc;
 		previewImage.alt = thumbnail.alt;
 		caption.textContent = `${activeIndex + 1} / ${galleryButtons.length}`;
 	};

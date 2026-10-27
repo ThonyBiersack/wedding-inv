@@ -36,7 +36,7 @@ const photos = [
 	>
 		<BatikBackground />
 
-		<header class="relative z-10 mb-9 text-center sm:mb-12">
+		<header id="main-header" class="page-header relative z-10 mb-9 text-center sm:mb-12">
 			<p
 				class="mb-3 font-sans text-[10px] font-medium uppercase tracking-[0.38em] text-[#e4d3a0] sm:text-xs"
 			>
@@ -62,11 +62,115 @@ const photos = [
 		>
 			<div
 				id="envelope"
-				class="envelope-stage relative aspect-[1.3/1] w-full max-w-[25rem] [perspective:1100px]"
+				class="envelope-stage relative aspect-[1.3/1] w-full max-w-[25rem]"
 			>
+				<!-- Interior Dinding Belakang Amplop -->
+				<div class="envelope-back absolute inset-0 overflow-hidden rounded-sm">
+					<div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/25"></div>
+				</div>
+
+				<!-- Flap Wrapper 3D: Membawa segitiga flap dan segel berputar realistis 180° ke atas -->
 				<div
-					class="absolute inset-0 rounded-sm bg-[#c4a252] shadow-[0_28px_55px_-26px_rgba(0,0,0,0.55)]"
+					class="envelope-flap-wrapper absolute inset-x-0 top-0 h-[56%] pointer-events-none"
 				>
+					<!-- Sisi Luar Flap (Tampak saat tertutup) -->
+					<div class="envelope-flap-front absolute inset-0">
+						<div
+							class="envelope-flap-shape absolute inset-0 bg-gradient-to-b from-[#f0dfb2] to-[#cbb274] [clip-path:polygon(0_0,100%_0,50%_100%)]"
+							aria-hidden="true"
+						>
+							<svg
+								aria-hidden="true"
+								class="pointer-events-none absolute inset-0 h-full w-full"
+								viewBox="0 0 1000 550"
+								preserveAspectRatio="none"
+							>
+								<path
+									d="M 0 0 L 500 550 L 1000 0"
+									fill="none"
+									stroke="#6e1d3b"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="8"
+									opacity="0.5"></path>
+							</svg>
+						</div>
+
+						<!-- Tombol Segel Lilin Menempel di Ujung Segitiga Flap -->
+						<button
+							id="open-invitation"
+							type="button"
+							aria-label="Buka surat undangan"
+							aria-expanded="false"
+							aria-controls="invitation"
+							class="envelope-seal pointer-events-auto absolute bottom-0 left-1/2 z-30 flex h-13 w-13 -translate-x-1/2 translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-[#e4d3a0] bg-gradient-to-br from-[#7e2444] to-[#4f142b] text-[#e4d3a0] shadow-[0_4px_14px_rgba(79,20,43,0.55)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e4d3a0]"
+						>
+							<div
+								class="relative flex h-10 w-10 items-center justify-center rounded-full border border-[#c4a252] bg-[#3a0d1e]/80 shadow-inner"
+							>
+								<svg
+									class="h-5 w-5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+									viewBox="0 0 24 24"
+									fill="url(#gold-heart-gradient)"
+									stroke="#e4d3a0"
+									stroke-width="1.2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<defs>
+										<linearGradient
+											id="gold-heart-gradient"
+											x1="0%"
+											y1="0%"
+											x2="100%"
+											y2="100%"
+										>
+											<stop offset="0%" stop-color="#fff0d0"
+											></stop>
+											<stop offset="50%" stop-color="#e4d3a0"
+											></stop>
+											<stop offset="100%" stop-color="#c4a252"
+											></stop>
+										</linearGradient>
+									</defs>
+									<path
+										d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+									></path>
+								</svg>
+							</div>
+						</button>
+
+						<!-- Efek Kilatan Emas Pelepasan Segel -->
+						<div
+							id="seal-sparkle"
+							class="pointer-events-none absolute bottom-0 left-1/2 z-35 h-14 w-14 -translate-x-1/2 translate-y-1/2 rounded-full border-2 border-[#e4d3a0] opacity-0 scale-50 transition-all duration-500 ease-out"
+						>
+						</div>
+					</div>
+
+					<!-- Sisi Dalam Flap (Lining emas mewah tampak saat terbuka) -->
+					<div class="envelope-flap-back absolute inset-0">
+						<div
+							class="envelope-flap-shape absolute inset-0 bg-gradient-to-t from-[#8f6e24] via-[#ab8634] to-[#785b1a] [clip-path:polygon(0_0,100%_0,50%_100%)]"
+							aria-hidden="true"
+						>
+							<svg
+								aria-hidden="true"
+								class="pointer-events-none absolute inset-0 h-full w-full opacity-40"
+								viewBox="0 0 1000 550"
+								preserveAspectRatio="none"
+							>
+								<path
+									d="M 60 20 L 500 510 L 940 20"
+									fill="none"
+									stroke="#e4d3a0"
+									stroke-dasharray="8 6"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="3"></path>
+							</svg>
+						</div>
+					</div>
 				</div>
 
 				<article
@@ -74,20 +178,15 @@ const photos = [
 					aria-hidden="true"
 					tabindex="-1"
 					inert
-					class="invitation-letter absolute bottom-5 left-[8%] z-[2] flex h-[96%] w-[84%] flex-col items-center justify-start overflow-y-auto overscroll-contain bg-[#f4d7e0] px-0 py-5 text-center shadow-[0_8px_20px_rgba(79,20,43,0.3)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c4a252]"
+					class="invitation-letter absolute bottom-4 inset-x-0 mx-auto z-10 flex h-[92%] w-[84%] flex-col items-center justify-start rounded-md bg-[#f4d7e0] px-0 py-5 text-center shadow-[0_10px_25px_-5px_rgba(0,0,0,0.45)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c4a252]"
 				>
-					<div
-						aria-hidden="true"
-						class="pointer-events-none absolute left-1/2 top-3 h-px w-12 -translate-x-1/2 bg-[#c4a252]/70"
-					>
-					</div>
 					<div
 						class="relative z-[1] flex w-full flex-col items-center gap-0"
 					>
 						<audio
 							id="invitation-music"
 							src="/audio/Make%20You%20Feel%20My%20Love.mp3"
-							preload="metadata"
+							preload="none"
 							loop
 							hidden></audio>
 						<InvitationCover />
@@ -113,12 +212,41 @@ const photos = [
 				</article>
 
 				<div
-					class="envelope-front absolute inset-0 z-[3] overflow-hidden rounded-sm"
+					class="envelope-front absolute inset-0 z-20 overflow-hidden rounded-sm pointer-events-none"
 				>
-					<div
-						class="absolute inset-x-0 bottom-0 h-[72%] bg-[#c4a252] [clip-path:polygon(0_0,50%_68%,100%_0,100%_100%,0_100%)]"
+					<svg
+						aria-hidden="true"
+						class="pointer-events-none absolute inset-0 h-full w-full"
+						viewBox="0 0 1000 770"
+						preserveAspectRatio="none"
 					>
-					</div>
+						<!-- Sayap Kiri Samping -->
+						<polygon points="0,0 500,420 0,770" fill="#b8933b"
+						></polygon>
+						<!-- Sayap Kanan Samping -->
+						<polygon points="1000,0 500,420 1000,770" fill="#b8933b"
+						></polygon>
+						<!-- Flap Depan Bawah Segitiga (Puncaknya mengarah ke ATAS di tengah) -->
+						<polygon points="0,770 500,420 1000,770" fill="#c4a252"
+						></polygon>
+						<!-- Garis lipatan sambungan emas & maroon -->
+						<path
+							d="M 0 0 L 500 420 L 1000 0"
+							fill="none"
+							stroke="#4f142b"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="5"
+							opacity="0.35"></path>
+						<path
+							d="M 0 770 L 500 420 L 1000 770"
+							fill="none"
+							stroke="#e4d3a0"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="3"
+							opacity="0.65"></path>
+					</svg>
 					<div
 						class="absolute inset-x-8 bottom-[10%] z-[1] text-center text-[#4f142b]"
 					>
@@ -129,42 +257,12 @@ const photos = [
 						</p>
 						<p
 							id="recipient-name"
-							class="mt-1 break-words text-base leading-tight"
+							class="mt-1 break-words font-serif text-base leading-tight"
 						>
 							Tamu Undangan
 						</p>
 					</div>
 				</div>
-
-				<div
-					class="envelope-flap absolute inset-x-0 top-0 z-[4] h-[58%] bg-[#e4d3a0] [backface-visibility:hidden] [clip-path:polygon(0_0,100%_0,50%_100%)] drop-shadow-[0_5px_3px_rgba(0,0,0,0.2)]"
-					aria-hidden="true"
-				>
-					<svg
-						aria-hidden="true"
-						class="pointer-events-none absolute inset-0 h-full w-full"
-						viewBox="0 0 1000 446"
-						preserveAspectRatio="none"
-					>
-						<path
-							d="M6 6L500 440L994 6"
-							fill="none"
-							stroke="#6e1d3b"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="10"></path>
-					</svg>
-				</div>
-				<button
-					id="open-invitation"
-					type="button"
-					aria-label="Buka surat undangan"
-					aria-expanded="false"
-					aria-controls="invitation"
-					class="envelope-seal absolute left-1/2 top-[58%] z-[5] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-[#e4d3a0] bg-[#6e1d3b] text-base text-[#e4d3a0] shadow-[0_3px_8px_rgba(79,20,43,0.45)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e4d3a0]"
-				>
-					✳
-				</button>
 			</div>
 
 			<p
@@ -182,20 +280,39 @@ const photos = [
 			aria-label="Jeda atau putar musik latar"
 			class="fixed bottom-5 right-5 z-[70] hidden h-11 w-11 items-center justify-center rounded-full border-2 border-[#c4a252] bg-[#3a0d1e]/90 text-[#e4d3a0] shadow-xl backdrop-blur-md transition hover:scale-105 active:scale-95 sm:bottom-6 sm:right-6"
 		>
-			<svg id="music-disc-icon" class="h-5 w-5 animate-spin-slow text-[#c4a252]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+			<svg
+				id="music-disc-icon"
+				class="h-5 w-5 animate-spin-slow text-[#c4a252]"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.8"
+			>
 				<circle cx="12" cy="12" r="10"></circle>
 				<circle cx="12" cy="12" r="3"></circle>
 				<path d="M12 2a10 10 0 0 1 10 10"></path>
 			</svg>
-			<svg id="music-paused-icon" class="hidden h-5 w-5 text-[#f4d7e0]/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<svg
+				id="music-paused-icon"
+				class="hidden h-5 w-5 text-[#f4d7e0]/70"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
 				<line x1="1" y1="1" x2="23" y2="23"></line>
-				<path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4m0 0l4 2.5M15 4v1.5"></path>
+				<path
+					d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4m0 0l4 2.5M15 4v1.5"
+				></path>
 				<circle cx="12" cy="12" r="10"></circle>
 			</svg>
 		</button>
 
 		<footer
-			class="relative z-10 mt-12 font-sans text-[9px] tracking-[0.12em] text-[#e4d3a0] sm:mt-16"
+			id="main-footer"
+			class="page-footer relative z-10 mt-12 font-sans text-[9px] tracking-[0.12em] text-[#e4d3a0] sm:mt-16"
 		>
 			MERAYAKAN CINTA · 2026
 		</footer>
@@ -210,7 +327,6 @@ const photos = [
 		const coverRecipientName = document.querySelector(
 			"#cover-recipient-name",
 		);
-		const invitationSection = document.querySelector("#invitation-section");
 		const invitationMusic = document.querySelector("#invitation-music");
 		const rsvpForm = document.querySelector("#rsvp-form");
 		const guestWishes = document.querySelector("#guest-wishes");
@@ -223,7 +339,6 @@ const photos = [
 			!(envelopeHint instanceof HTMLElement) ||
 			!(recipientName instanceof HTMLElement) ||
 			!(coverRecipientName instanceof HTMLElement) ||
-			!(invitationSection instanceof HTMLElement) ||
 			!(invitationMusic instanceof HTMLAudioElement) ||
 			!(rsvpForm instanceof HTMLFormElement) ||
 			!(guestWishes instanceof HTMLElement) ||
@@ -285,23 +400,122 @@ const photos = [
 			});
 		});
 
-		button.addEventListener("click", () => {
-			const envelopeBounds = envelope.getBoundingClientRect();
-			const sealBounds = button.getBoundingClientRect();
-			const startHeight = Math.max(16, envelopeBounds.height * 0.08);
-			const startBounds = {
-				left: envelopeBounds.left + envelopeBounds.width * 0.08,
-				top: sealBounds.top + sealBounds.height / 2 - startHeight / 2,
-				width: envelopeBounds.width * 0.84,
-				height: startHeight,
-			};
+		const mainHeader = document.querySelector("#main-header");
+		const mainFooter = document.querySelector("#main-footer");
+		const delay = (ms: number) =>
+			new Promise((resolve) => setTimeout(resolve, ms));
+
+		const musicToggleBtn = document.querySelector("#music-toggle-btn");
+		const musicDiscIcon = document.querySelector("#music-disc-icon");
+		const musicPausedIcon = document.querySelector("#music-paused-icon");
+
+		const updateMusicUi = (isPlaying: boolean) => {
+			if (isPlaying) {
+				musicDiscIcon?.classList.remove("hidden");
+				musicDiscIcon?.classList.add("animate-spin-slow");
+				musicPausedIcon?.classList.add("hidden");
+				musicToggleBtn?.setAttribute("aria-label", "Jeda musik");
+			} else {
+				musicDiscIcon?.classList.add("hidden");
+				musicDiscIcon?.classList.remove("animate-spin-slow");
+				musicPausedIcon?.classList.remove("hidden");
+				musicToggleBtn?.setAttribute("aria-label", "Putar musik");
+			}
+		};
+
+		if (musicToggleBtn instanceof HTMLButtonElement) {
+			musicToggleBtn.addEventListener("click", () => {
+				if (invitationMusic.paused) {
+					void invitationMusic.play().catch((error: unknown) => {
+						console.error("Unable to play invitation audio.", error);
+					});
+					updateMusicUi(true);
+				} else {
+					invitationMusic.pause();
+					updateMusicUi(false);
+				}
+			});
+		}
+
+		let wasPlayingBeforeHidden = false;
+
+		document.addEventListener("visibilitychange", () => {
+			if (document.hidden) {
+				if (!invitationMusic.paused) {
+					wasPlayingBeforeHidden = true;
+					invitationMusic.pause();
+					updateMusicUi(false);
+				} else {
+					wasPlayingBeforeHidden = false;
+				}
+			} else if (wasPlayingBeforeHidden) {
+				void invitationMusic.play().catch((error: unknown) => {
+					console.error("Unable to resume invitation audio.", error);
+				});
+				updateMusicUi(true);
+				wasPlayingBeforeHidden = false;
+			}
+		});
+
+		button.addEventListener("click", async () => {
+			button.disabled = true;
+			button.setAttribute("aria-expanded", "true");
+
+			// 1. Mulai audio musik secara bertahap
+			invitationMusic.volume = 0;
+			void invitationMusic
+				.play()
+				.then(() => {
+					const fadeInterval = setInterval(() => {
+						if (invitationMusic.volume < 0.95) {
+							invitationMusic.volume = Math.min(
+								1,
+								invitationMusic.volume + 0.1,
+							);
+						} else {
+							invitationMusic.volume = 1;
+							clearInterval(fadeInterval);
+						}
+					}, 60);
+				})
+				.catch((error: unknown) => {
+					console.error("Unable to play invitation audio.", error);
+				});
+
+			// 2. Sentuhan haptik segel & kilatan emas
+			button.classList.add("is-clicked");
+			const sealSparkle = document.querySelector("#seal-sparkle");
+			if (sealSparkle instanceof HTMLElement) {
+				sealSparkle.classList.remove("scale-50", "opacity-0");
+				sealSparkle.classList.add("scale-[2.4]", "opacity-100");
+				setTimeout(() => {
+					sealSparkle.classList.remove("opacity-100");
+					sealSparkle.classList.add("opacity-0");
+				}, 500);
+			}
+
+			envelopeHint.textContent = "Membuka undangan...";
+			mainHeader?.classList.add("is-hidden");
+			mainFooter?.classList.add("is-hidden");
+
+			// 3. Flap membuka 180° ke atas dengan 3D perspective
+			envelope.classList.add("is-flap-open");
+
+			// 4. Overlapping: saat flap mencapai ~120° (550ms), surat langsung mulai meluncur keluar secara alami
+			await delay(550);
+			envelope.classList.add("is-sliding-out");
+
+			// 5. Surat mencapai puncak ketinggian kantong (durasi 850ms), beri jeda napas 500ms agar tamu menikmati
+			await delay(950);
+
+			// 6. Transisi sinematik: amplop mundur/turun ke bawah, surat bergerak maju mendekat ke mata pembaca
+			const startRect = invitation.getBoundingClientRect();
 
 			envelope.classList.add("is-open");
-			invitationSection.classList.add("is-open");
-			const targetBounds = invitation.getBoundingClientRect();
-			button.setAttribute("aria-expanded", "true");
+
+			const targetRect = invitation.getBoundingClientRect();
+
 			button.setAttribute("aria-label", "Surat terbuka");
-			button.disabled = true;
 			invitation.setAttribute("aria-hidden", "false");
 			invitation.setAttribute("tabindex", "0");
 			invitation.inert = false;
@@ -309,75 +523,51 @@ const photos = [
 				"aria-label",
 				"Surat undangan lengkap. Gulir untuk melihat semua bagian.",
 			);
-			envelopeHint.textContent =
-				"Gulir isi surat untuk melihat semua informasi";
-			invitation.focus();
+			invitation.focus({ preventScroll: true });
 			invitation.scrollTop = 0;
-			if (
-				!window.matchMedia("(prefers-reduced-motion: reduce)").matches
-			) {
-				const scaleX = startBounds.width / targetBounds.width;
-				const scaleY = startBounds.height / targetBounds.height;
-				invitation.animate(
-					[
-						{
-							transformOrigin: "center center",
-							transform: `translate(${startBounds.left + startBounds.width / 2 - targetBounds.left - targetBounds.width / 2}px, ${startBounds.top + startBounds.height / 2 - targetBounds.top - targetBounds.height / 2}px) scale(${scaleX}, ${scaleY})`,
-						},
-						{
-							transformOrigin: "center center",
-							transform: "translate(0, 0) scale(1, 1)",
-						},
-					],
-					{
-						duration: 850,
-						easing: "cubic-bezier(0.22, 0.75, 0.25, 1)",
-					},
-				);
-			}
-			invitationMusic.volume = 0;
-
-			const musicToggleBtn = document.querySelector("#music-toggle-btn");
-			const musicDiscIcon = document.querySelector("#music-disc-icon");
-			const musicPausedIcon = document.querySelector("#music-paused-icon");
 
 			if (musicToggleBtn instanceof HTMLButtonElement) {
 				musicToggleBtn.classList.remove("hidden");
-				musicToggleBtn.addEventListener("click", () => {
-					if (invitationMusic.paused) {
-						void invitationMusic.play();
-						musicDiscIcon?.classList.remove("hidden");
-						musicDiscIcon?.classList.add("animate-spin-slow");
-						musicPausedIcon?.classList.add("hidden");
-						musicToggleBtn.setAttribute("aria-label", "Jeda musik");
-					} else {
-						invitationMusic.pause();
-						musicDiscIcon?.classList.add("hidden");
-						musicDiscIcon?.classList.remove("animate-spin-slow");
-						musicPausedIcon?.classList.remove("hidden");
-						musicToggleBtn.setAttribute("aria-label", "Putar musik");
-					}
-				});
 			}
 
-			void invitationMusic
-				.play()
-				.then(() => {
-					// Soft fade-in over 500ms
-					const fadeInterval = setInterval(() => {
-						if (invitationMusic.volume < 0.95) {
-							invitationMusic.volume = Math.min(1, invitationMusic.volume + 0.1);
-						} else {
-							invitationMusic.volume = 1;
-							clearInterval(fadeInterval);
-						}
-					}, 50);
-				})
-				.catch((error: unknown) => {
-					envelopeHint.textContent =
-						"Surat terbuka · Musik gagal diputar di perangkat ini";
-					console.error("Unable to play invitation audio.", error);
-				});
+			const deltaX =
+				startRect.left +
+				startRect.width / 2 -
+				(targetRect.left + targetRect.width / 2);
+			const deltaY =
+				startRect.top +
+				startRect.height / 2 -
+				(targetRect.top + targetRect.height / 2);
+			const scaleX = startRect.width / targetRect.width;
+			const scaleY = startRect.height / targetRect.height;
+
+			// Eksekusi animasi zoom-in simetris dari posisi tengah ke fullscreen
+			const anim = invitation.animate(
+				[
+					{
+						transformOrigin: "center center",
+						transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`,
+						boxShadow: "0 20px 45px -6px rgba(0, 0, 0, 0.55)",
+					},
+					{
+						transformOrigin: "center center",
+						transform: "translate3d(0px, 0px, 0) scale(1, 1)",
+						boxShadow: "0 24px 45px rgba(66, 53, 39, 0.18)",
+					},
+				],
+				{
+					duration: 850,
+					easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+					fill: "both",
+				},
+			);
+
+			anim.onfinish = () => {
+				envelope.classList.remove("is-sliding-out");
+				invitation.classList.add("is-scrollable");
+				invitation.scrollTop = 0;
+				envelopeHint.textContent = "";
+			};
 		});
 	</script>
 </Layout>
