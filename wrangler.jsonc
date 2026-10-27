@@ -1,13 +1,17 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "invitation-web",
+	"name": "wedding-inv",
 	"compatibility_date": "2026-02-01",
 	"compatibility_flags": ["nodejs_compat"],
+	"vars": {
+		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAFnmml-lN3F0mjRc"
+	},
+
 	"d1_databases": [
 		{
 			"binding": "DB",
 			"database_name": "invitation_db",
-			"database_id": "local-d1-invitation-db"
+			"database_id": "140e5b72-c13c-4874-a2eb-94df801972e5"
 		}
 	]
 }
