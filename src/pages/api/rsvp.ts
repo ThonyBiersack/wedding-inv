@@ -14,7 +14,6 @@ function getTurnstileSecret(): string | undefined {
 	return (import.meta as any).env?.TURNSTILE_SECRET_KEY;
 }
 
-
 // GET: Ambil daftar ucapan (Terfilter & Terurut)
 export const GET: APIRoute = async () => {
 	try {
@@ -95,7 +94,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 			);
 		}
 
-		// 3. Client IP & Server-Side Rate Limiting (Maks 5 submit per 10 menit)
+		// 3. Client IP & Server-Side Atomic Rate Limiting (Maks 5 submit per 10 menit)
 		const ip =
 			request.headers.get("cf-connecting-ip") ||
 			request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -124,7 +123,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 			}
 		}
 
-		// 5. Validasi & Sanitasi Input Ketat
+		// 5. Validasi & Sanitasi Input
 		const attendance =
 			body.attendance === "Tidak hadir"
 				? "Tidak hadir"
@@ -140,60 +139,39 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 		}
 
 		const message = sanitizeText(typeof body.message === "string" ? body.message : "", 500);
-		const rawName =
-			typeof body.name === "string"
-				? body.name
-				: typeof body.guestName === "string"
-				? body.guestName
-				: "";
-		const sanitizedName = sanitizeText(rawName, 80);
 		const slug = typeof body.slug === "string" ? body.slug.trim() : "";
 
-		let guestDisplayName = sanitizedName;
-
-		if (slug) {
-			// Validasi tamu terdaftar di database D1
-			const existing = await db
-				.prepare("SELECT id, name FROM guests WHERE slug = ?")
-				.bind(slug)
-				.first<{ id: number; name: string }>();
-
-			if (existing) {
-				guestDisplayName = existing.name;
-				await db
-					.prepare("UPDATE guests SET status_rsvp = ?, wishes = ? WHERE id = ?")
-					.bind(attendance, message, existing.id)
-					.run();
-			} else if (sanitizedName) {
-				await db
-					.prepare("INSERT INTO guests (name, slug, status_rsvp, wishes) VALUES (?, ?, ?, ?)")
-					.bind(sanitizedName, slug, attendance, message)
-					.run();
-			} else {
-				return new Response(
-					JSON.stringify({ error: "Akses ditolak: Tamu tidak terdaftar dalam daftar undangan resmi." }),
-					{ status: 403, headers: { "Content-Type": "application/json" } },
-				);
-			}
-		} else {
-			if (!sanitizedName) {
-				return new Response(
-					JSON.stringify({ error: "Nama tamu wajib diisi (maksimal 80 karakter)." }),
-					{ status: 400, headers: { "Content-Type": "application/json" } },
-				);
-			}
-			const genSlug = `${sanitizedName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`;
-			await db
-				.prepare("INSERT INTO guests (name, slug, status_rsvp, wishes) VALUES (?, ?, ?, ?)")
-				.bind(sanitizedName, genSlug, attendance, message)
-				.run();
+		// 6. Anti-IDOR & Whitelist Tamu: Hanya tamu dengan slug sah yang terdaftar di D1 yang boleh RSVP
+		if (!slug) {
+			return new Response(
+				JSON.stringify({ error: "Akses ditolak: Tautan undangan khusus diperlukan untuk mengisi RSVP." }),
+				{ status: 403, headers: { "Content-Type": "application/json" } },
+			);
 		}
+
+		const existing = await db
+			.prepare("SELECT id, name FROM guests WHERE slug = ?")
+			.bind(slug)
+			.first<{ id: number; name: string }>();
+
+		if (!existing) {
+			return new Response(
+				JSON.stringify({ error: "Akses ditolak: Tamu tidak terdaftar dalam daftar undangan resmi." }),
+				{ status: 403, headers: { "Content-Type": "application/json" } },
+			);
+		}
+
+		// Simpan status kehadiran & ucapan ke D1
+		await db
+			.prepare("UPDATE guests SET status_rsvp = ?, wishes = ? WHERE id = ?")
+			.bind(attendance, message, existing.id)
+			.run();
 
 		return new Response(
 			JSON.stringify({
 				success: true,
 				message: "RSVP dan doa berhasil dikirim.",
-				guestName: guestDisplayName,
+				guestName: existing.name,
 				attendance,
 				wishes: message,
 			}),

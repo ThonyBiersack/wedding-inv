@@ -1,51 +1,41 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 import { getDb } from "../../lib/db";
-import { sanitizeText } from "../../lib/security";
+import { sanitizeText, timingSafeEqual, generateSecureSlug } from "../../lib/security";
 
 export const prerender = false;
 
-function getAdminSecret(): string | undefined {
+function getAdminSecret(): string | null {
 	try {
 		if (typeof env !== "undefined" && (env as any)?.ADMIN_SECRET_KEY) {
 			return (env as any).ADMIN_SECRET_KEY;
 		}
 	} catch {}
-	return (import.meta as any).env?.ADMIN_SECRET_KEY;
+	return (import.meta as any).env?.ADMIN_SECRET_KEY || null;
 }
-
 
 function isAuthorized(request: Request): boolean {
 	const adminSecret = getAdminSecret();
-	if (!adminSecret) return true;
+	// FAIL-CLOSED: Jika admin secret belum disetel di server, akses wajib ditolak
+	if (!adminSecret) return false;
 
 	const authHeader = request.headers.get("authorization");
 	const xKey = request.headers.get("x-admin-key");
-	const urlKey = new URL(request.url).searchParams.get("key");
 
 	const token =
 		(authHeader?.startsWith("Bearer ") ? authHeader.slice(7).trim() : null) ||
-		xKey?.trim() ||
-		urlKey?.trim();
+		xKey?.trim();
 
-	return Boolean(token && token === adminSecret);
-}
+	if (!token) return false;
 
-function slugify(text: string): string {
-	return text
-		.toString()
-		.toLowerCase()
-		.trim()
-		.replace(/\s+/g, "-")
-		.replace(/[^\w\-]+/g, "")
-		.replace(/\-\-+/g, "-");
+	return timingSafeEqual(token, adminSecret);
 }
 
 export const GET: APIRoute = async ({ request }) => {
 	try {
 		if (!isAuthorized(request)) {
 			return new Response(
-				JSON.stringify({ error: "Akses ditolak: Passcode Admin tidak valid." }),
+				JSON.stringify({ error: "Akses ditolak: Autentikasi Admin diperlukan." }),
 				{ status: 401, headers: { "Content-Type": "application/json" } },
 			);
 		}
@@ -79,7 +69,7 @@ export const POST: APIRoute = async ({ request }) => {
 	try {
 		if (!isAuthorized(request)) {
 			return new Response(
-				JSON.stringify({ error: "Akses ditolak: Passcode Admin tidak valid." }),
+				JSON.stringify({ error: "Akses ditolak: Autentikasi Admin diperlukan." }),
 				{ status: 401, headers: { "Content-Type": "application/json" } },
 			);
 		}
@@ -103,19 +93,18 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
-		let baseSlug = slugify(name);
-		if (!baseSlug) {
-			baseSlug = "tamu";
+		// Buat slug unguessable & cek collision
+		let finalSlug = generateSecureSlug(name);
+		let attempts = 0;
+		while (attempts < 5) {
+			const existing = await db
+				.prepare("SELECT id FROM guests WHERE slug = ?")
+				.bind(finalSlug)
+				.first();
+			if (!existing) break;
+			finalSlug = generateSecureSlug(name);
+			attempts++;
 		}
-
-		const existing = await db
-			.prepare("SELECT id FROM guests WHERE slug = ?")
-			.bind(baseSlug)
-			.first();
-
-		const finalSlug = existing
-			? `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`
-			: baseSlug;
 
 		const insertResult = await db
 			.prepare("INSERT INTO guests (name, slug) VALUES (?, ?) RETURNING *")
@@ -139,7 +128,7 @@ export const DELETE: APIRoute = async ({ request }) => {
 	try {
 		if (!isAuthorized(request)) {
 			return new Response(
-				JSON.stringify({ error: "Akses ditolak: Passcode Admin tidak valid." }),
+				JSON.stringify({ error: "Akses ditolak: Autentikasi Admin diperlukan." }),
 				{ status: 401, headers: { "Content-Type": "application/json" } },
 			);
 		}
@@ -155,7 +144,7 @@ export const DELETE: APIRoute = async ({ request }) => {
 		const body = await request.json().catch(() => null);
 		const id = Number(body?.id);
 
-		if (!id || Number.isNaN(id)) {
+		if (!id || !Number.isInteger(id) || id <= 0) {
 			return new Response(
 				JSON.stringify({ error: "ID tamu tidak valid." }),
 				{ status: 400, headers: { "Content-Type": "application/json" } },
