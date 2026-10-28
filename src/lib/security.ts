@@ -1,10 +1,12 @@
 import type { D1Database } from "@cloudflare/workers-types";
 
-// 1. Sanitasi String (Anti-XSS & Control Character Removal)
+// 1. Sanitasi String (Anti-XSS, ReDoS Protection & Control Character Removal)
 export function sanitizeText(input: string, maxLength: number): string {
 	if (typeof input !== "string") return "";
-	return input
-		.replace(/[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/g, "") // Strip non-printable control characters (keep \n \t)
+	// Potong batas panjang awal untuk mencegah pemborosan CPU / ReDoS dari payload raksasa
+	const bounded = input.slice(0, maxLength * 2);
+	return bounded
+		.replace(/[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/g, "") // Strip non-printable control characters
 		.replace(/<[^>]*>?/gm, "") // Strip HTML tags
 		.replace(/javascript:/gi, "")
 		.replace(/data:/gi, "")
@@ -12,7 +14,17 @@ export function sanitizeText(input: string, maxLength: number): string {
 		.slice(0, maxLength);
 }
 
-// 2. Constant-Time String Comparison (Anti-Timing Attacks)
+// 2. Client IP Extractor (Aman dari Spoofing X-Forwarded-For)
+export function getClientIp(request: Request, clientAddress?: string): string {
+	return (
+		request.headers.get("cf-connecting-ip") ||
+		clientAddress ||
+		request.headers.get("x-real-ip") ||
+		"127.0.0.1"
+	);
+}
+
+// 3. Constant-Time String Comparison (Anti-Timing Attacks)
 export function timingSafeEqual(a: string, b: string): boolean {
 	if (typeof a !== "string" || typeof b !== "string") return false;
 	const aLen = a.length;
@@ -27,7 +39,7 @@ export function timingSafeEqual(a: string, b: string): boolean {
 	return diff === 0;
 }
 
-// 3. Hash Session Token (Menghindari Menyimpan Plaintext Master Passcode di Cookie)
+// 4. Hash Session Token (Menghindari Menyimpan Plaintext Master Passcode di Cookie)
 export async function createSessionToken(secret: string): Promise<string> {
 	const msgBuffer = new TextEncoder().encode(`admin_auth_v1_session:${secret}`);
 	const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
@@ -36,7 +48,7 @@ export async function createSessionToken(secret: string): Promise<string> {
 		.join("");
 }
 
-// 4. Secure Slug Generator (Anti-IDOR & Anti-Guessing Tamu)
+// 5. Secure Slug Generator (Anti-IDOR & Anti-Guessing Tamu)
 export function generateSecureSlug(name: string): string {
 	const base = name
 		.toLowerCase()
@@ -55,7 +67,7 @@ export function generateSecureSlug(name: string): string {
 	return `${base}-${suffix}`;
 }
 
-// 5. Hash IP (GDPR / Data Privacy compliance)
+// 6. Hash IP (GDPR / Data Privacy compliance)
 export async function hashIp(ip: string, salt = "wedding_rsvp_secure_salt_2026"): Promise<string> {
 	const msgBuffer = new TextEncoder().encode(`${salt}:${ip}`);
 	const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
@@ -64,7 +76,7 @@ export async function hashIp(ip: string, salt = "wedding_rsvp_secure_salt_2026")
 		.join("");
 }
 
-// 6. Verifikasi Cloudflare Turnstile
+// 7. Verifikasi Cloudflare Turnstile
 export async function verifyTurnstileToken(
 	token: string,
 	secretKey: string,
@@ -98,7 +110,7 @@ export async function verifyTurnstileToken(
 	}
 }
 
-// 7. Atomic Rate Limiting via Cloudflare D1 (Anti-Race Condition & Auto Storage Cleanup)
+// 8. Atomic Rate Limiting via Cloudflare D1 (Anti-Race Condition & Auto Storage Cleanup)
 export async function checkRateLimit(
 	db: D1Database,
 	ipHash: string,
@@ -107,24 +119,24 @@ export async function checkRateLimit(
 ): Promise<boolean> {
 	const now = Math.floor(Date.now() / 1000);
 
-	// Jalankan atomic UPSERT di D1
+	// Positional parameter binding 1-ke-1 menjamin kompatibilitas penuh di seluruh driver D1/SQLite
 	const upsertRes = await db
 		.prepare(
 			`INSERT INTO rsvp_rate_limits (ip_hash, attempts, first_attempt_at, last_attempt_at)
-			 VALUES (?1, 1, ?2, ?2)
+			 VALUES (?, 1, ?, ?)
 			 ON CONFLICT(ip_hash) DO UPDATE SET
 				attempts = CASE
-					WHEN ?2 - first_attempt_at > ?3 THEN 1
+					WHEN ? - first_attempt_at > ? THEN 1
 					ELSE attempts + 1
 				END,
 				first_attempt_at = CASE
-					WHEN ?2 - first_attempt_at > ?3 THEN ?2
+					WHEN ? - first_attempt_at > ? THEN ?
 					ELSE first_attempt_at
 				END,
-				last_attempt_at = ?2
+				last_attempt_at = ?
 			 RETURNING attempts`,
 		)
-		.bind(ipHash, now, windowSeconds)
+		.bind(ipHash, now, now, now, windowSeconds, now, windowSeconds, now, now)
 		.first<{ attempts: number }>();
 
 	// Bersihkan record kedaluwarsa secara berkala (5% probabilitas setiap request) agar D1 storage tidak membengkak

@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 import { getDb } from "../../lib/db";
-import { sanitizeText, hashIp, verifyTurnstileToken, checkRateLimit } from "../../lib/security";
+import { sanitizeText, hashIp, verifyTurnstileToken, checkRateLimit, getClientIp } from "../../lib/security";
 
 export const prerender = false;
 
@@ -70,6 +70,15 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 			}
 		}
 
+		// 2. Batas Ukuran Payload (Anti-DoS Memory Exhaustion)
+		const contentLength = Number(request.headers.get("content-length") || "0");
+		if (contentLength > 16 * 1024) {
+			return new Response(
+				JSON.stringify({ error: "Ukuran data terlalu besar (maksimal 16KB)." }),
+				{ status: 413, headers: { "Content-Type": "application/json" } },
+			);
+		}
+
 		const db = await getDb();
 		if (!db) {
 			return new Response(
@@ -86,7 +95,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 			});
 		}
 
-		// 2. Anti-Bot Honeypot (Silent Drop jika bot mengisi field jebakan)
+		// 3. Anti-Bot Honeypot (Silent Drop jika bot mengisi field jebakan)
 		if (body.website || body.company || body.company_name) {
 			return new Response(
 				JSON.stringify({ success: true, message: "RSVP dan doa berhasil dikirim." }),
@@ -94,12 +103,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 			);
 		}
 
-		// 3. Client IP & Server-Side Atomic Rate Limiting (Maks 5 submit per 10 menit)
-		const ip =
-			request.headers.get("cf-connecting-ip") ||
-			request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-			clientAddress ||
-			"127.0.0.1";
+		// 4. Client IP & Server-Side Atomic Rate Limiting (Maks 5 submit per 10 menit)
+		const ip = getClientIp(request, clientAddress);
 		const ipHashed = await hashIp(ip);
 		const allowed = await checkRateLimit(db, ipHashed, 5, 600);
 		if (!allowed) {
@@ -109,7 +114,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 			);
 		}
 
-		// 4. Cloudflare Turnstile Verification (Anti-Spam CAPTCHA)
+		// 5. Cloudflare Turnstile Verification (Anti-Spam CAPTCHA)
 		const turnstileSecret = getTurnstileSecret();
 		const turnstileToken = body["cf-turnstile-response"] || body.turnstileToken;
 
@@ -123,7 +128,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 			}
 		}
 
-		// 5. Validasi & Sanitasi Input
+		// 6. Validasi & Sanitasi Input
 		const attendance =
 			body.attendance === "Tidak hadir"
 				? "Tidak hadir"
@@ -141,7 +146,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 		const message = sanitizeText(typeof body.message === "string" ? body.message : "", 500);
 		const slug = typeof body.slug === "string" ? body.slug.trim() : "";
 
-		// 6. Anti-IDOR & Whitelist Tamu: Hanya tamu dengan slug sah yang terdaftar di D1 yang boleh RSVP
+		// 7. Anti-IDOR & Whitelist Tamu: Hanya tamu dengan slug sah yang terdaftar di D1 yang boleh RSVP
 		if (!slug) {
 			return new Response(
 				JSON.stringify({ error: "Akses ditolak: Tautan undangan khusus diperlukan untuk mengisi RSVP." }),

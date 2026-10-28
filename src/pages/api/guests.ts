@@ -1,7 +1,14 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 import { getDb } from "../../lib/db";
-import { sanitizeText, timingSafeEqual, generateSecureSlug } from "../../lib/security";
+import {
+	sanitizeText,
+	timingSafeEqual,
+	generateSecureSlug,
+	getClientIp,
+	hashIp,
+	checkRateLimit,
+} from "../../lib/security";
 
 export const prerender = false;
 
@@ -31,14 +38,35 @@ function isAuthorized(request: Request): boolean {
 	return timingSafeEqual(token, adminSecret);
 }
 
-export const GET: APIRoute = async ({ request }) => {
-	try {
-		if (!isAuthorized(request)) {
+async function verifyAuthWithRateLimit(request: Request): Promise<Response | null> {
+	if (isAuthorized(request)) {
+		return null;
+	}
+
+	// Brute-force throttling: Batasi maksimal 10 kegagalan autentikasi per 15 menit per IP
+	const db = await getDb();
+	if (db) {
+		const ip = getClientIp(request);
+		const ipHash = await hashIp(ip + ":admin_api");
+		const allowed = await checkRateLimit(db, ipHash, 10, 900);
+		if (!allowed) {
 			return new Response(
-				JSON.stringify({ error: "Akses ditolak: Autentikasi Admin diperlukan." }),
-				{ status: 401, headers: { "Content-Type": "application/json" } },
+				JSON.stringify({ error: "Terlalu banyak percobaan autentikasi gagal. Silakan tunggu 15 menit." }),
+				{ status: 429, headers: { "Content-Type": "application/json" } },
 			);
 		}
+	}
+
+	return new Response(
+		JSON.stringify({ error: "Akses ditolak: Autentikasi Admin diperlukan." }),
+		{ status: 401, headers: { "Content-Type": "application/json" } },
+	);
+}
+
+export const GET: APIRoute = async ({ request }) => {
+	try {
+		const authError = await verifyAuthWithRateLimit(request);
+		if (authError) return authError;
 
 		const db = await getDb();
 		if (!db) {
@@ -67,10 +95,15 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
-		if (!isAuthorized(request)) {
+		const authError = await verifyAuthWithRateLimit(request);
+		if (authError) return authError;
+
+		// Batas Ukuran Payload (Anti-DoS Memory Exhaustion)
+		const contentLength = Number(request.headers.get("content-length") || "0");
+		if (contentLength > 16 * 1024) {
 			return new Response(
-				JSON.stringify({ error: "Akses ditolak: Autentikasi Admin diperlukan." }),
-				{ status: 401, headers: { "Content-Type": "application/json" } },
+				JSON.stringify({ error: "Ukuran data terlalu besar (maksimal 16KB)." }),
+				{ status: 413, headers: { "Content-Type": "application/json" } },
 			);
 		}
 
@@ -126,10 +159,14 @@ export const POST: APIRoute = async ({ request }) => {
 
 export const DELETE: APIRoute = async ({ request }) => {
 	try {
-		if (!isAuthorized(request)) {
+		const authError = await verifyAuthWithRateLimit(request);
+		if (authError) return authError;
+
+		const contentLength = Number(request.headers.get("content-length") || "0");
+		if (contentLength > 16 * 1024) {
 			return new Response(
-				JSON.stringify({ error: "Akses ditolak: Autentikasi Admin diperlukan." }),
-				{ status: 401, headers: { "Content-Type": "application/json" } },
+				JSON.stringify({ error: "Ukuran data terlalu besar (maksimal 16KB)." }),
+				{ status: 413, headers: { "Content-Type": "application/json" } },
 			);
 		}
 

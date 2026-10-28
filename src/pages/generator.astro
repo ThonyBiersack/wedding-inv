@@ -2,7 +2,15 @@
 import Layout from "../layouts/layout.astro";
 import BatikBackground from "../components/BatikBackground.astro";
 import { getDb } from "../lib/db";
-import { sanitizeText, timingSafeEqual, createSessionToken, generateSecureSlug } from "../lib/security";
+import {
+	sanitizeText,
+	timingSafeEqual,
+	createSessionToken,
+	generateSecureSlug,
+	getClientIp,
+	hashIp,
+	checkRateLimit,
+} from "../lib/security";
 import { env } from "cloudflare:workers";
 
 export const prerender = false;
@@ -59,29 +67,63 @@ function getWhatsAppShareUrl(guestName: string, guestUrl: string): string {
 	return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 }
 
-const baseUrl = Astro.url.origin;
+// Anti Host-Header Poisoning: Utamakan Astro.site yang dikonfigurasi, gunakan Astro.url.origin hanya di localhost
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, "") : "https://anggi-asep.djieproduction.com";
+const baseUrl =
+	Astro.url.hostname === "localhost" || Astro.url.hostname === "127.0.0.1"
+		? Astro.url.origin
+		: siteUrl;
 const getGuestUrl = (slug: string) => `${baseUrl}/?to=${encodeURIComponent(slug)}`;
 
 // 2. Server-side Action Handlers (Mutasi langsung di serverless)
 if (Astro.request.method === "POST") {
 	try {
+		// Validasi Anti-CSRF / Origin Check
+		const origin = Astro.request.headers.get("origin") || Astro.request.headers.get("referer");
+		const host = Astro.request.headers.get("host") || Astro.url.host;
+		if (origin) {
+			try {
+				const originHost = new URL(origin).host;
+				if (originHost !== host) {
+					authError = "Akses ditolak: Invalid Origin request.";
+					return Astro.redirect("/generator");
+				}
+			} catch {
+				authError = "Akses ditolak: Malformed Origin header.";
+				return Astro.redirect("/generator");
+			}
+		}
+
 		const formData = await Astro.request.formData();
 		const action = formData.get("_action")?.toString();
 
 		if (action === "login") {
-			const enteredKey = formData.get("passcode")?.toString().trim();
-			if (adminSecret && enteredKey && timingSafeEqual(enteredKey, adminSecret)) {
-				const sessionToken = await createSessionToken(adminSecret);
-				Astro.cookies.set("admin_session", sessionToken, {
-					path: "/",
-					httpOnly: true,
-					secure: true,
-					sameSite: "strict",
-					maxAge: 60 * 60 * 24 * 7, // 7 hari
-				});
-				return Astro.redirect("/generator");
-			} else {
-				authError = "Passcode salah atau akses ditolak.";
+			// Anti-Brute Force Throttling pada login passcode: Maksimal 5 percobaan per 15 menit per IP
+			const db = await getDb();
+			if (db) {
+				const clientIp = getClientIp(Astro.request);
+				const ipHash = await hashIp(clientIp + ":admin_login");
+				const allowed = await checkRateLimit(db, ipHash, 5, 900);
+				if (!allowed) {
+					authError = "Terlalu banyak percobaan login gagal. Silakan tunggu 15 menit.";
+				}
+			}
+
+			if (!authError) {
+				const enteredKey = formData.get("passcode")?.toString().trim();
+				if (adminSecret && enteredKey && timingSafeEqual(enteredKey, adminSecret)) {
+					const sessionToken = await createSessionToken(adminSecret);
+					Astro.cookies.set("admin_session", sessionToken, {
+						path: "/",
+						httpOnly: true,
+						secure: true,
+						sameSite: "strict",
+						maxAge: 60 * 60 * 24 * 7, // 7 hari
+					});
+					return Astro.redirect("/generator");
+				} else {
+					authError = "Passcode salah atau akses ditolak.";
+				}
 			}
 		} else if (action === "logout") {
 			Astro.cookies.delete("admin_session", { path: "/" });
