@@ -32,7 +32,10 @@ const { photos } = Astro.props;
 					class="group cursor-zoom-in overflow-hidden rounded-xl border border-[#c4a252]/60 shadow-2xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6e1d3b]"
 				>
 					<img
-						src={`/photo/thumb/${photo}`} decoding="async"
+						src={`/photo/thumb/${photo}`}
+						width="250"
+						height="250"
+						decoding="async"
 						alt={`Foto Anggi dan Asep ${index + 1}`}
 						loading="lazy"
 						class="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
