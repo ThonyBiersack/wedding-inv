@@ -1,43 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#5a1631"/>
-      <stop offset="50%" stop-color="#471126"/>
-      <stop offset="100%" stop-color="#2b0716"/>
-    </linearGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fbf2d8"/>
-      <stop offset="35%" stop-color="#e4d3a0"/>
-      <stop offset="70%" stop-color="#c4a252"/>
-      <stop offset="100%" stop-color="#9b792b"/>
-    </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.45"/>
-    </filter>
-  </defs>
-
-  <!-- Circular Badge Base -->
-  <circle cx="64" cy="64" r="62" fill="url(#bgGrad)"/>
-
-  <!-- Gold Ring Border -->
-  <circle cx="64" cy="64" r="57.5" fill="none" stroke="url(#goldGrad)" stroke-width="2.5"/>
-  <circle cx="64" cy="64" r="53.5" fill="none" stroke="#e4d3a0" stroke-width="0.8" stroke-dasharray="2.5 2" opacity="0.6"/>
-
-  <!-- Decorative Crest Elements -->
-  <g fill="url(#goldGrad)">
-    <!-- Top 4-point Star -->
-    <path d="M 64 19 L 65.4 24.2 L 70.6 25.6 L 65.4 27 L 64 32.2 L 62.6 27 L 57.4 25.6 L 62.6 24.2 Z"/>
-    <!-- Bottom Triple Dots -->
-    <circle cx="55" cy="107" r="1.6" opacity="0.8"/>
-    <circle cx="64" cy="107" r="2.4"/>
-    <circle cx="73" cy="107" r="1.6" opacity="0.8"/>
-  </g>
-
-  <!-- DP Monogram (Djie Production) -->
-  <g fill="url(#goldGrad)" filter="url(#glow)" fill-rule="evenodd">
-    <!-- Letter 'D' with refined serif -->
-    <path d="M 26 38 L 47.5 38 C 58.5 38 65.5 45 65.5 64 C 65.5 83 58.5 90 47.5 90 L 26 90 L 26 84.5 L 31 84.5 L 31 43.5 L 26 43.5 Z M 40 47.5 L 46 47.5 C 53 47.5 56 52.5 56 64 C 56 75.5 53 80.5 46 80.5 L 40 80.5 Z"/>
-    <!-- Letter 'P' with refined serif -->
-    <path d="M 67.5 38 L 88.5 38 C 99 38 105.5 44 105.5 55 C 105.5 66 99 72 88.5 72 L 78.5 72 L 78.5 84.5 L 83.5 84.5 L 83.5 90 L 67.5 90 L 67.5 84.5 L 71.5 84.5 L 71.5 43.5 L 67.5 43.5 Z M 78.5 47.5 L 86.5 47.5 C 92 47.5 95.5 50.5 95.5 55 C 95.5 59.5 92 62.5 86.5 62.5 L 78.5 62.5 Z"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Djie Production">
+  <title>Djie Production</title>
+  <style>
+    path { fill: #4f142b; }
+    @media (prefers-color-scheme: dark) {
+      path { fill: #FFFFFF; }
+    }
+  </style>
+  <path fill-rule="evenodd" d="M15.36,0 H48.64 A15.36,15.36 0 0 1 64,15.36 V48.64 A15.36,15.36 0 0 1 48.64,64 H15.36 A15.36,15.36 0 0 1 0,48.64 V15.36 A15.36,15.36 0 0 1 15.36,0 Z M16.093253924127467 48.05632V15.943679999999993H31.279581037936268Q36.59003571471928 15.943679999999993 40.62310275690441 17.914729896206367Q44.65616979908954 19.88577979241274 46.92145793748104 23.471163357814866Q49.186746075872534 27.056546923216995 49.186746075872534 31.999999999999996Q49.186746075872534 36.91181380758725 46.92145793748104 40.51301700758725Q44.65616979908954 44.11422020758725 40.62310275690441 46.085270103793626Q36.59003571471928 48.05632 31.279581037936268 48.05632ZM25.183017566009106 40.82533731836115H30.877772761153267Q33.641318477693474 40.82533731836115 35.6890648861912 39.77575938330804Q37.73681129468892 38.726181448254934 38.87813962974204 36.73537876297421Q40.01946796479515 34.74457607769347 40.01946796479515 31.999999999999996Q40.01946796479515 29.209548722306522 38.87813962974204 27.241683637025794Q37.73681129468892 25.273818551745066 35.6890648861912 24.224240616691954Q33.641318477693474 23.174662681638843 30.877772761153267 23.174662681638843H25.183017566009106Z" />
 </svg>
