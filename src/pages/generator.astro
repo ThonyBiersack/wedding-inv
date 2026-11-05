@@ -516,13 +516,12 @@ if (isAuthenticated) {
 													<button
 														type="button"
 														data-copy={invitationMsg}
-														class="copy-btn inline-flex items-center gap-1 rounded-lg border border-[#c4a252] bg-[#4f142b] px-2.5 py-1.5 font-sans text-xs font-medium text-[#e4d3a0] hover:bg-[#6e1d3b] active:scale-95"
-														title={`Salin template kata-kata undangan lengkap untuk ${guest.name}`}
+														class="copy-btn inline-flex items-center rounded-lg border border-[#c4a252]/40 bg-[#3a0d1e] p-1.5 text-[#e4d3a0] hover:border-[#e4d3a0] hover:bg-[#4f142b] active:scale-95"
+														title={`Salin pesan undangan untuk ${guest.name}`}
 													>
-														<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+														<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 															<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
 														</svg>
-														<span>Salin Pesan</span>
 													</button>
 													<a
 														href={waUrl}
@@ -755,6 +754,11 @@ if (isAuthenticated) {
 					span.textContent = "Tersalin!";
 					setTimeout(() => {
 						span.textContent = orig;
+					}, 1500);
+				} else {
+					btn.classList.add("!border-emerald-400", "!text-emerald-300");
+					setTimeout(() => {
+						btn.classList.remove("!border-emerald-400", "!text-emerald-300");
 					}, 1500);
 				}
 			}
