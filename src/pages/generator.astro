@@ -225,6 +225,11 @@ if (isAuthenticated) {
 		console.error("Gagal mengambil daftar tamu di server:", e);
 	}
 }
+
+const totalGuestsCount = guests.length;
+const hadirCount = guests.filter((g) => g.status_rsvp === "Hadir").length;
+const tidakHadirCount = guests.filter((g) => g.status_rsvp === "Tidak Hadir" || g.status_rsvp === "Tidak hadir").length;
+const pendingCount = totalGuestsCount - hadirCount - tidakHadirCount;
 ---
 
 <Layout title="Generator Undangan & Tamu · Anggi & Asep">
@@ -468,7 +473,81 @@ if (isAuthenticated) {
 								</div>
 							</div>
 
+							<!-- Quick Stats Badges -->
+							<div class="mt-4 flex flex-wrap items-center gap-1.5 font-sans text-[11px]">
+								<div class="rounded-md border border-[#c4a252]/30 bg-[#241018]/80 px-2.5 py-1 text-[#f4d7e0]/90">
+									Total: <span class="font-bold text-[#e4d3a0]">{totalGuestsCount}</span>
+								</div>
+								<div class="rounded-md border border-green-700/50 bg-green-950/40 px-2.5 py-1 text-green-300">
+									Hadir: <span class="font-bold">{hadirCount}</span>
+								</div>
+								<div class="rounded-md border border-red-700/50 bg-red-950/40 px-2.5 py-1 text-red-300">
+									Tidak Hadir: <span class="font-bold">{tidakHadirCount}</span>
+								</div>
+								<div class="rounded-md border border-yellow-700/50 bg-yellow-950/40 px-2.5 py-1 text-yellow-300">
+									Pending: <span class="font-bold">{pendingCount}</span>
+								</div>
+							</div>
+
+							<!-- Search Bar & Filter Tabs -->
+							<div class="mt-4 space-y-2.5 border-b border-[#c4a252]/20 pb-4">
+								<div class="relative">
+									<svg class="pointer-events-none absolute left-3.5 top-2.5 h-4 w-4 text-[#e4d3a0]/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+										<circle cx="11" cy="11" r="8"></circle>
+										<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+									</svg>
+									<input
+										id="search-guest-input"
+										type="text"
+										placeholder="Cari nama tamu atau slug..."
+										class="w-full rounded-xl border border-[#c4a252]/40 bg-[#241018]/90 pl-10 pr-9 py-2 font-sans text-xs text-[#fff0f4] placeholder-[#f4d7e0]/40 shadow-inner focus:border-[#e4d3a0] focus:outline-none focus:ring-2 focus:ring-[#c4a252]/40"
+									/>
+									<button
+										id="clear-search-btn"
+										type="button"
+										class="hidden absolute right-3 top-2.5 text-[#f4d7e0]/50 hover:text-[#fff0f4] text-xs font-bold leading-none p-0.5"
+										title="Hapus pencarian"
+									>
+										✕
+									</button>
+								</div>
+
+								<div class="flex flex-wrap items-center gap-1.5" id="filter-pills">
+									<button
+										type="button"
+										data-filter="all"
+										class="filter-btn active rounded-lg border border-[#c4a252] bg-[#4f142b] px-3 py-1 font-sans text-xs font-medium text-[#e4d3a0] shadow-sm transition"
+									>
+										Semua ({totalGuestsCount})
+									</button>
+									<button
+										type="button"
+										data-filter="hadir"
+										class="filter-btn rounded-lg border border-[#c4a252]/30 bg-[#241018]/80 px-3 py-1 font-sans text-xs font-medium text-[#f4d7e0]/70 hover:border-[#c4a252]/60 hover:text-[#fff0f4] transition"
+									>
+										Hadir ({hadirCount})
+									</button>
+									<button
+										type="button"
+										data-filter="tidak_hadir"
+										class="filter-btn rounded-lg border border-[#c4a252]/30 bg-[#241018]/80 px-3 py-1 font-sans text-xs font-medium text-[#f4d7e0]/70 hover:border-[#c4a252]/60 hover:text-[#fff0f4] transition"
+									>
+										Tidak Hadir ({tidakHadirCount})
+									</button>
+									<button
+										type="button"
+										data-filter="pending"
+										class="filter-btn rounded-lg border border-[#c4a252]/30 bg-[#241018]/80 px-3 py-1 font-sans text-xs font-medium text-[#f4d7e0]/70 hover:border-[#c4a252]/60 hover:text-[#fff0f4] transition"
+									>
+										Pending ({pendingCount})
+									</button>
+								</div>
+							</div>
+
 							<div class="mt-4 space-y-2.5">
+								<div id="no-search-results" class="hidden py-8 text-center font-sans text-xs text-[#f4d7e0]/50">
+									Tidak ada tamu yang cocok dengan filter atau kata kunci pencarian.
+								</div>
 								{guests.length === 0 ? (
 									<div class="py-8 text-center font-sans text-xs text-[#f4d7e0]/50">
 										Belum ada tamu yang disimpan di database.
@@ -478,9 +557,20 @@ if (isAuthenticated) {
 										const url = getGuestUrl(guest.slug);
 										const waUrl = getWhatsAppShareUrl(guest.name, url);
 										const invitationMsg = buildInvitationMessage(guest.name, url);
+										const statusKey = guest.status_rsvp === "Hadir"
+											? "hadir"
+											: guest.status_rsvp === "Tidak Hadir" || guest.status_rsvp === "Tidak hadir"
+											? "tidak_hadir"
+											: "pending";
 
 										return (
-											<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-[#c4a252]/25 bg-[#241018]/90 p-3.5 transition hover:border-[#c4a252]/50">
+											<div
+												data-guest-item
+												data-guest-name={guest.name.toLowerCase()}
+												data-guest-slug={guest.slug.toLowerCase()}
+												data-guest-status={statusKey}
+												class="guest-row flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-[#c4a252]/25 bg-[#241018]/90 p-3.5 transition hover:border-[#c4a252]/50"
+											>
 												<div class="min-w-0 flex-1">
 													<div class="flex items-center gap-2">
 														<h4 class="font-serif text-base font-medium text-[#fff0f4] truncate">
@@ -789,6 +879,71 @@ if (isAuthenticated) {
 			if (e.target === editDialog) {
 				editDialog.close();
 			}
+		});
+
+		// 4. Instant Search & Filter Guests
+		const searchInput = document.querySelector<HTMLInputElement>("#search-guest-input");
+		const clearSearchBtn = document.querySelector<HTMLButtonElement>("#clear-search-btn");
+		const filterButtons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+		const guestItems = document.querySelectorAll<HTMLElement>("[data-guest-item]");
+		const noResultsNotice = document.querySelector<HTMLElement>("#no-search-results");
+
+		let currentFilter = "all";
+
+		function applyGuestFilters() {
+			const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+			if (clearSearchBtn) {
+				clearSearchBtn.classList.toggle("hidden", query.length === 0);
+			}
+
+			let visibleCount = 0;
+			guestItems.forEach((item) => {
+				const name = item.getAttribute("data-guest-name") || "";
+				const slug = item.getAttribute("data-guest-slug") || "";
+				const status = item.getAttribute("data-guest-status") || "pending";
+
+				const matchesQuery = query === "" || name.includes(query) || slug.includes(query);
+				const matchesStatus = currentFilter === "all" || status === currentFilter;
+
+				if (matchesQuery && matchesStatus) {
+					item.classList.remove("hidden");
+					visibleCount++;
+				} else {
+					item.classList.add("hidden");
+				}
+			});
+
+			if (noResultsNotice) {
+				noResultsNotice.classList.toggle("hidden", visibleCount > 0);
+			}
+		}
+
+		if (searchInput) {
+			searchInput.addEventListener("input", applyGuestFilters);
+		}
+
+		if (clearSearchBtn) {
+			clearSearchBtn.addEventListener("click", () => {
+				if (searchInput) {
+					searchInput.value = "";
+				}
+				applyGuestFilters();
+				searchInput?.focus();
+			});
+		}
+
+		filterButtons.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				filterButtons.forEach((b) => {
+					b.classList.remove("active", "border-[#c4a252]", "bg-[#4f142b]", "text-[#e4d3a0]");
+					b.classList.add("border-[#c4a252]/30", "bg-[#241018]/80", "text-[#f4d7e0]/70");
+				});
+				btn.classList.add("active", "border-[#c4a252]", "bg-[#4f142b]", "text-[#e4d3a0]");
+				btn.classList.remove("border-[#c4a252]/30", "bg-[#241018]/80", "text-[#f4d7e0]/70");
+
+				currentFilter = btn.getAttribute("data-filter") || "all";
+				applyGuestFilters();
+			});
 		});
 	</script>
 </Layout>
